@@ -115,10 +115,10 @@ export default function AlertsPanel() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {alerts?.length === 0 ? (
+          {(alerts as any)?.length === 0 ? (
             <p className="text-gray-500 text-center py-8">אין התראות פעילות</p>
           ) : (
-            alerts?.map((alert: any) => {
+            (alerts as any)?.map((alert: any) => {
               const styles = getAlertStyles(alert.severity);
               
               return (

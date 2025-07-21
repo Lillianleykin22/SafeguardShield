@@ -130,14 +130,14 @@ export default function StudentTable() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {students?.length === 0 ? (
+                {(students as any)?.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                       לא נמצאו תלמידים
                     </td>
                   </tr>
                 ) : (
-                  students?.map((student: any) => (
+                  (students as any)?.map((student: any) => (
                     <tr key={student.id} className="hover:bg-gray-50 transition-colors duration-300">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -184,10 +184,10 @@ export default function StudentTable() {
           </div>
 
           {/* Pagination */}
-          {students?.length > 0 && (
+          {(students as any)?.length > 0 && (
             <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
               <div className="text-sm text-gray-500">
-                מציג 1-{students?.length} מתוך {students?.length} תלמידים
+                מציג 1-{(students as any)?.length} מתוך {(students as any)?.length} תלמידים
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">הקודם</Button>

@@ -84,13 +84,13 @@ export default function Home() {
             {/* User Menu */}
             <div className="flex items-center gap-3">
               <img 
-                src={user.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"} 
+                src={(user as any)?.profileImageUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"} 
                 alt="פרופיל משתמש" 
                 className="w-10 h-10 rounded-full object-cover border-2 border-white/30"
               />
               <div className="text-sm">
-                <div className="font-semibold">{user.firstName} {user.lastName}</div>
-                <div className="text-blue-100">{user.role}</div>
+                <div className="font-semibold">{(user as any)?.firstName} {(user as any)?.lastName}</div>
+                <div className="text-blue-100">{(user as any)?.role}</div>
               </div>
               <Button
                 variant="ghost"

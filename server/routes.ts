@@ -12,7 +12,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -72,7 +75,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: 'student',
         description: `תלמיד חדש נוסף: ${student.firstName} ${student.lastName}`,
-        userId: req.user.claims.sub,
+        userId: req.user?.claims?.sub,
         studentId: student.id,
       });
       
@@ -102,7 +105,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const attendanceData = insertAttendanceSchema.parse({
         ...req.body,
-        recordedBy: req.user.claims.sub,
+        recordedBy: req.user?.claims?.sub,
       });
       const attendance = await storage.recordAttendance(attendanceData);
       
@@ -111,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: 'attendance',
         description: `נוכחות נרשמה: ${student?.firstName} ${student?.lastName} - ${attendance.status}`,
-        userId: req.user.claims.sub,
+        userId: req.user?.claims?.sub,
         studentId: attendance.studentId,
       });
       
@@ -157,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.createActivity({
         type: 'alert',
         description: `התראה חדשה: ${alert.title}`,
-        userId: req.user.claims.sub,
+        userId: req.user?.claims?.sub,
         studentId: alert.studentId,
       });
       
@@ -174,13 +177,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch('/api/alerts/:id/resolve', isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const alert = await storage.resolveAlert(id, req.user.claims.sub);
+      const alert = await storage.resolveAlert(id, req.user?.claims?.sub || '');
       
       // Log activity
       await storage.createActivity({
         type: 'alert',
         description: `התראה נפתרה: ${alert.title}`,
-        userId: req.user.claims.sub,
+        userId: req.user?.claims?.sub,
         studentId: alert.studentId,
       });
       

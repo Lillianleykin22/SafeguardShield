@@ -69,10 +69,10 @@ export default function ActivityLog() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4 custom-scrollbar max-h-80 overflow-y-auto">
-          {activities?.length === 0 ? (
+          {(activities as any)?.length === 0 ? (
             <p className="text-gray-500 text-center py-8">אין פעילות להצגה</p>
           ) : (
-            activities?.map((activity: any, index: number) => (
+            (activities as any)?.map((activity: any, index: number) => (
               <div key={activity.id || index} className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-300">
                 <div className={`w-10 h-10 ${getActivityColor(activity.type)} rounded-full flex items-center justify-center`}>
                   {getActivityIcon(activity.type)}

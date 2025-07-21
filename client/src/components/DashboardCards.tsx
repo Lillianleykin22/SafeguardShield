@@ -24,25 +24,25 @@ export default function DashboardCards() {
   const cards = [
     {
       title: "סך הכל תלמידים",
-      value: stats?.totalStudents || 0,
+      value: (stats as any)?.totalStudents || 0,
       icon: Users,
       color: "blue",
     },
     {
       title: "נוכחים היום",
-      value: stats?.presentToday || 0,
+      value: (stats as any)?.presentToday || 0,
       icon: UserCheck,
       color: "green",
     },
     {
       title: "נעדרים היום",
-      value: stats?.absentToday || 0,
+      value: (stats as any)?.absentToday || 0,
       icon: UserX,
       color: "yellow",
     },
     {
       title: "התראות פעילות",
-      value: stats?.activeAlerts || 0,
+      value: (stats as any)?.activeAlerts || 0,
       icon: AlertTriangle,
       color: "red",
     },
