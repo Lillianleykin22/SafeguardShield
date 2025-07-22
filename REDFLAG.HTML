@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>Red Flag – Detecting Hidden Dangers in Teen Relationships</title>
+  <style>
+    body { font-family: Arial; background: #f9f9f9; direction: rtl; margin: 0; padding: 0; }
+    .login, .dashboard { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 0 10px #ccc; }
+    .hidden { display: none; }
+    .profile-card { border: 1px solid #ddd; padding: 12px; margin: 10px 0; border-radius: 8px; background: #f0f0f0; }
+    button { background: #1976d2; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+    input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
+    h2, h3 { color: #333; }
+  </style>
+</head>
+<body>
+
+<div class="login">
+  <h2>התחברות למערכת Red Flag</h2>
+  <input id="username" placeholder="שם משתמש">
+  <input id="password" type="password" placeholder="סיסמה">
+  <button onclick="login()">התחבר</button>
+  <p id="loginError" style="color: red"></p>
+</div>
+
+<div class="dashboard hidden">
+  <h2>ברוכים הבאים ל-Red Flag, <span id="displayName"></span></h2>
+  <div id="studentsContainer"></div>
+</div>
+
+<script>
+  const users = [
+    { username: "teacher1", password: "1234", name: "רותי המורה" },
+    { username: "counselor1", password: "abcd", name: "דניאל היועץ" },
+    { username: "admin", password: "admin", name: "מנהלת בית הספר" }
+  ];
+
+  const students = [
+    { id: 1, name: "נועם לוי", status: "ניטרלי", score: 53 },
+    { id: 2, name: "רוני כהן", status: "סיכון בינוני", score: 74 },
+    { id: 3, name: "מאיה פרץ", status: "סיכון גבוה", score: 91 }
+  ];
+
+  function login() {
+    const user = users.find(u => u.username === username.value && u.password === password.value);
+    if (!user) {
+      loginError.innerText = "שם משתמש או סיסמה שגויים";
+      return;
+    }
+    document.querySelector(".login").classList.add("hidden");
+    document.querySelector(".dashboard").classList.remove("hidden");
+    displayName.innerText = user.name;
+    loadStudents();
+  }
+
+  function loadStudents() {
+    const container = document.getElementById("studentsContainer");
+    container.innerHTML = "<h3>רשימת תלמידים במעקב רגשי</h3>";
+    students.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "profile-card";
+      div.innerHTML = `
+        <strong>${s.name}</strong><br>
+        מצב רגשי: <b>${s.status}</b><br>
+        ניקוד מדד רגשי: ${s.score}<br>
+        <button onclick="viewStudent(${s.id})">צפה בפרופיל</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function viewStudent(id) {
+    const student = students.find(s => s.id === id);
+    alert(`
+---
+מערכת Red Flag
+פרופיל: ${student.name}
+מצב רגשי: ${student.status}
+ניקוד רגשי: ${student.score}
+---
+(בהתבסס על ניתוח AI לזיהוי קשרים מסוכנים)`);
+  }
+</script>
+
+</body>
+</html>

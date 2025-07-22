@@ -1,0 +1,3786 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard - מערכת זיהוי מוקדם לבטיחות תלמידים - מתקדמת</title>
+    <style>
+        /* === בסיס === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --bg-light: #f7fafc;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --radius-lg: 20px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* === עיצובים כלליים === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: var(--white); }
+        .btn-warning { background: var(--warning); color: var(--white); }
+        .btn-danger { background: var(--error); color: var(--white); }
+        .btn-secondary { background: var(--gray-200); color: var(--gray-800); }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover { transform: translateY(-2px); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-high { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+        .status-medium { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .status-low { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .status-new { background: rgba(14, 165, 233, 0.1); color: var(--info); }
+
+        .hidden { display: none !important; }
+
+        /* === מערכות אבטחה חדשות === */
+        .security-indicator {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 9999;
+            animation: pulse 2s infinite;
+        }
+
+        .security-indicator.warning {
+            background: var(--warning);
+        }
+
+        .security-indicator.danger {
+            background: var(--error);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .biometric-scanner {
+            width: 100px;
+            height: 100px;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: scan 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes scan {
+            0%, 100% { border-color: var(--primary); }
+            50% { border-color: var(--success); }
+        }
+
+        .two-factor-input {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .two-factor-input input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .two-factor-input input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .activity-log {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 0.9rem;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.success { color: var(--success); }
+        .log-entry.warning { color: var(--warning); }
+        .log-entry.error { color: var(--error); }
+
+        .permission-matrix {
+            display: grid;
+            grid-template-columns: 200px repeat(4, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .permission-header {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .permission-cell {
+            background: var(--gray-50);
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid var(--gray-200);
+        }
+
+        .permission-granted {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .permission-denied {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        /* === דף התחברות === */
+        .login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-header .logo { font-size: 3rem; margin-bottom: 1rem; }
+        .login-header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+
+        .login-form {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--gray-800);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-login {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+        }
+
+        .quick-login h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+            text-align: center;
+        }
+
+        .quick-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover { background: var(--primary-dark); }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 80px;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .social-btn.facebook:hover { background: #1877f2; color: white; }
+        .social-btn.google:hover { background: #4285f4; color: white; }
+        .social-btn.twitter:hover { background: #1da1f2; color: white; }
+
+        /* דף הרשמה */
+        .register-page {
+            display: none;
+        }
+
+        .register-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .register-form {
+            padding: 2rem;
+        }
+
+        /* === האפליקציה הראשית === */
+        .app-page {
+            display: none;
+            background-color: var(--bg-light);
+            color: var(--gray-800);
+            min-height: 100vh;
+        }
+
+        /* כותרת */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* ניווט */
+        .navigation {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 2rem;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            padding: 1rem 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* תוכן ראשי */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--gray-800);
+        }
+
+        /* כרטיסיות דשבורד */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover { transform: translateY(-2px); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* סוגי כרטיסיות */
+        .card-danger .card-icon { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+        .card-danger .card-value { color: var(--error); }
+        .card-warning .card-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .card-warning .card-value { color: var(--warning); }
+        .card-success .card-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .card-success .card-value { color: var(--success); }
+        .card-info .card-icon { background: rgba(14, 165, 233, 0.1); color: var(--info); }
+        .card-info .card-value { color: var(--info); }
+
+        /* טבלאות */
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .table tbody tr:hover {
+            background: var(--gray-100);
+        }
+
+        .table .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        /* הודעות */
+        .message {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .message.info {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* אלרטים */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error);
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: rgba(14, 165, 233, 0.1);
+            border-color: var(--info);
+            color: #0c4a6e;
+        }
+
+        /* רספונסיביות */
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            .nav-content {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .main-content {
+                padding: 0 1rem;
+            }
+            .table .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+            .form-input, .form-input select {
+                font-size: 16px; /* מונע זום במובייל */
+            }
+        }
+
+        /* סגנונות מיוחדים */
+        .demo-highlight {
+            border-left: 5px solid var(--primary);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .feature-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .form-input, .form-input select, .form-input textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .report-table-container {
+            margin: 1rem 0;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .report-table th {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.75rem;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .report-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--gray-200);
+            text-align: right;
+        }
+
+        .report-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background: rgba(102, 126, 234, 0.02);
+        }
+
+        @media (max-width: 600px) {
+            .feature-buttons {
+                flex-direction: column;
+            }
+            .report-table {
+                font-size: 0.8rem;
+            }
+            .report-table th,
+            .report-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- אינדיקטור אבטחה -->
+    <div id="securityIndicator" class="security-indicator">
+        🔒 מערכת מאובטחת
+    </div>
+
+    <!-- דף התחברות -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo">🛡️</div>
+                <h1>SafeGuard Pro</h1>
+                <p>מערכת זיהוי מוקדם מתקדמת לבטיחות תלמידים</p>
+                <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.9;">
+                    🔐 מערכת אבטחה מתקדמת | 🔑 אימות דו-שלבי | 📊 ביקורת מלאה
+                </div>
+            </div>
+
+            <div class="login-form">
+                <div id="messageContainer"></div>
+
+                <!-- שלב 1: התחברות רגילה -->
+                <form id="loginForm" onsubmit="handleLogin(event)" style="display: block;">
+                    <div class="form-group">
+                        <label class="form-label" for="username">שם משתמש</label>
+                        <input type="text" id="username" class="form-input" placeholder="הזן שם משתמש" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">סיסמה</label>
+                        <input type="password" id="password" class="form-input" placeholder="הזן סיסמה" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="rememberMe">
+                            <span style="font-size: 0.9rem;">זכור אותי (30 יום)</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="login-btn">התחבר למערכת</button>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="#" onclick="showForgotPassword()" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">שכחת סיסמה?</a>
+                    </div>
+                </form>
+
+                <!-- שלב 2: אימות ביומטרי -->
+                <div id="biometricAuth" style="display: none; text-align: center;">
+                    <h3>אימות ביומטרי</h3>
+                    <p style="margin-bottom: 1rem; color: var(--gray-600);">הצע את האצבע או הסתכל למצלמה</p>
+                    <div class="biometric-scanner" onclick="performBiometricAuth()">
+                        👆
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="skipBiometric()">דלג על אימות ביומטרי</button>
+                </div>
+
+                <!-- שלב 3: אימות דו-שלבי -->
+                <div id="twoFactorAuth" style="display: none; text-align: center;">
+                    <h3>אימות דו-שלבי</h3>
+                    <p style="margin-bottom: 1rem; color: var(--gray-600);">הזן את הקוד שנשלח לטלפון שלך</p>
+                    <div class="two-factor-input">
+                        <input type="text" maxlength="1" onkeyup="moveToNext(this, 0)">
+                        <input type="text" maxlength="1" onkeyup="moveToNext(this, 1)">
+                        <input type="text" maxlength="1" onkeyup="moveToNext(this, 2)">
+                        <input type="text" maxlength="1" onkeyup="moveToNext(this, 3)">
+                        <input type="text" maxlength="1" onkeyup="moveToNext(this, 4)">
+                        <input type="text" maxlength="1" onkeyup="moveToNext(this, 5)">
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="verifyTwoFactor()">אמת קוד</button>
+                    <button type="button" class="btn btn-secondary" onclick="resendCode()">שלח קוד מחדש</button>
+                </div>
+
+                <!-- שלב 4: שחזור סיסמה -->
+                <div id="forgotPasswordForm" style="display: none;">
+                    <h3>שחזור סיסמה</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="resetEmail">כתובת אימייל</label>
+                        <input type="email" id="resetEmail" class="form-input" placeholder="הזן כתובת אימייל" required>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="sendPasswordReset()">שלח קישור איפוס</button>
+                    <button type="button" class="btn btn-secondary" onclick="backToLogin()">חזור להתחברות</button>
+                </div>
+
+                <!-- לינק למשתמש חדש -->
+                <div style="text-align: center; margin-top: 1rem;">
+                    <p style="color: var(--gray-600);">משתמש חדש? 
+                        <a href="#" onclick="showRegisterPage()" style="color: var(--primary); text-decoration: none; font-weight: 600;">הירשם כאן</a>
+                    </p>
+                </div>
+
+                <!-- או התחברות מרשתות חברתיות -->
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <div style="flex: 1; height: 1px; background: var(--gray-200);"></div>
+                        <span style="padding: 0 1rem; color: var(--gray-500); font-size: 0.9rem;">או התחבר עם</span>
+                        <div style="flex: 1; height: 1px; background: var(--gray-200);"></div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.8rem; justify-content: center;">
+                        <button type="button" class="social-btn facebook" onclick="loginWithFacebook()">
+                            📘 Facebook
+                        </button>
+                        <button type="button" class="social-btn google" onclick="loginWithGoogle()">
+                            🔍 Google
+                        </button>
+                        <button type="button" class="social-btn twitter" onclick="loginWithTwitter()">
+                            🐦 Twitter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-login">
+                    <h3>כניסה מהירה למטרות הדגמה:</h3>
+                    <button class="quick-btn" onclick="quickLogin('מורה רחל כהן', 'teacher')">
+                        👩‍🏫 מורה רחל כהן
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('יועץ דני לוי', 'counselor')">
+                        👨‍💼 יועץ דני לוי
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('מנהלת שרה אברהם', 'principal')">
+                        👩‍💼 מנהלת שרה אברהם
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('מנהל מערכת', 'admin')">
+                        🔧 מנהל מערכת
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- דף הרשמה -->
+    <div id="registerPage" class="login-page register-page">
+        <div class="register-container">
+            <div class="register-header">
+                <div class="logo">🆕</div>
+                <h1>הרשמה למערכת</h1>
+                <p>צור חשבון חדש במערכת SafeGuard Pro</p>
+            </div>
+
+            <div class="register-form">
+                <div id="registerMessageContainer"></div>
+
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="regFirstName">שם פרטי</label>
+                        <input type="text" id="regFirstName" class="form-input" placeholder="הזן שם פרטי" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regLastName">שם משפחה</label>
+                        <input type="text" id="regLastName" class="form-input" placeholder="הזן שם משפחה" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regEmail">כתובת אימייל</label>
+                        <input type="email" id="regEmail" class="form-input" placeholder="הזן כתובת אימייל" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regPhone">מספר טלפון</label>
+                        <input type="tel" id="regPhone" class="form-input" placeholder="הזן מספר טלפון לאימות" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regPassword">סיסמה</label>
+                        <input type="password" id="regPassword" class="form-input" placeholder="בחר סיסמה חזקה (8+ תווים)" required minlength="8">
+                        <div style="font-size: 0.8rem; color: var(--gray-600); margin-top: 0.5rem;">
+                            הסיסמה חייבת להכיל: אותיות גדולות, קטנות, מספרים ותו מיוחד
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regConfirmPassword">אישור סיסמה</label>
+                        <input type="password" id="regConfirmPassword" class="form-input" placeholder="הזן את הסיסמה שוב" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regRole">תפקיד במערכת</label>
+                        <select id="regRole" class="form-input" required>
+                            <option value="">בחר תפקיד</option>
+                            <option value="teacher">מורה</option>
+                            <option value="counselor">יועץ חינוכי</option>
+                            <option value="principal">מנהל/ת בית ספר</option>
+                            <option value="admin">מנהל מערכת</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="regInstitution">מוסד חינוכי</label>
+                        <input type="text" id="regInstitution" class="form-input" placeholder="שם בית הספר או המוסד" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="regTerms" required>
+                            <span style="font-size: 0.9rem; color: var(--gray-600);">
+                                אני מסכים/ה לתנאי השימוש ולמדיניות הפרטיות
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="regNewsletters">
+                            <span style="font-size: 0.9rem; color: var(--gray-600);">
+                                אני מעוניין/ת לקבל עדכונים ובטלטן אבטחה
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="login-btn">הירשם למערכת</button>
+                </form>
+
+                <!-- לינק חזרה להתחברות -->
+                <div style="text-align: center; margin-top: 1rem;">
+                    <p style="color: var(--gray-600);">כבר יש לך חשבון? 
+                        <a href="#" onclick="showLoginPage()" style="color: var(--primary); text-decoration: none; font-weight: 600;">התחבר כאן</a>
+                    </p>
+                </div>
+
+                <!-- או הרשמה מרשתות חברתיות -->
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                        <div style="flex: 1; height: 1px; background: var(--gray-200);"></div>
+                        <span style="padding: 0 1rem; color: var(--gray-500); font-size: 0.9rem;">או הירשם עם</span>
+                        <div style="flex: 1; height: 1px; background: var(--gray-200);"></div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.8rem; justify-content: center;">
+                        <button type="button" class="social-btn facebook" onclick="registerWithFacebook()">
+                            📘 Facebook
+                        </button>
+                        <button type="button" class="social-btn google" onclick="registerWithGoogle()">
+                            🔍 Google
+                        </button>
+                        <button type="button" class="social-btn twitter" onclick="registerWithTwitter()">
+                            🐦 Twitter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- האפליקציה הראשית -->
+    <div id="appPage" class="app-page">
+        <!-- כותרת -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">🛡️ SafeGuard Pro</div>
+                <div class="user-menu">
+                    <span id="userRole" style="font-size: 0.8rem; opacity: 0.8;"></span>
+                    <span id="currentUser">משתמש</span>
+                    <span id="sessionTimer" style="font-size: 0.8rem; opacity: 0.8;"></span>
+                    <button class="btn btn-secondary" onclick="showSecurityPanel()">🔒 אבטחה</button>
+                    <button class="btn btn-secondary" onclick="handleLogout()">יציאה</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ניווט -->
+        <nav class="navigation">
+            <div class="nav-content">
+                <div class="nav-item active" onclick="showSection('dashboard')">לוח בקרה</div>
+                <div class="nav-item" onclick="showSection('students')">תלמידים</div>
+                <div class="nav-item" onclick="showSection('alerts')">התראות</div>
+                <div class="nav-item" onclick="showSection('reports')">דוחות</div>
+                <div class="nav-item" onclick="showSection('security')">🔒 אבטחה</div>
+                <div class="nav-item" onclick="showSection('settings')">הגדרות</div>
+            </div>
+        </nav>
+
+        <!-- תוכן ראשי -->
+        <main class="main-content">
+            <!-- לוח בקרה -->
+            <section id="dashboard-section">
+                <h1 class="page-title">לוח בקרה מתקדם</h1>
+                
+                <!-- כרטיסיות סטטיסטיקות -->
+                <div class="dashboard-cards">
+                    <div class="dashboard-card card-danger">
+                        <div class="card-header">
+                            <div class="card-title">התראות דחופות</div>
+                            <div class="card-icon">🚨</div>
+                        </div>
+                        <div class="card-value">3</div>
+                        <div class="card-description">דורשות טיפול מיידי</div>
+                    </div>
+
+                    <div class="dashboard-card card-warning">
+                        <div class="card-header">
+                            <div class="card-title">תלמידים בסיכון</div>
+                            <div class="card-icon">⚠️</div>
+                        </div>
+                        <div class="card-value">12</div>
+                        <div class="card-description">דורשים מעקב צמוד</div>
+                    </div>
+
+                    <div class="dashboard-card card-success">
+                        <div class="card-header">
+                            <div class="card-title">תלמידים במעקב</div>
+                            <div class="card-icon">👥</div>
+                        </div>
+                        <div class="card-value">87</div>
+                        <div class="card-description">סה"כ תלמידים פעילים</div>
+                    </div>
+
+                    <div class="dashboard-card card-info">
+                        <div class="card-header">
+                            <div class="card-title">דוחות השבוע</div>
+                            <div class="card-icon">📊</div>
+                        </div>
+                        <div class="card-value">5</div>
+                        <div class="card-description">דוחות שנוצרו השבוע</div>
+                    </div>
+
+                    <!-- כרטיסיית אבטחה חדשה -->
+                    <div class="dashboard-card card-info">
+                        <div class="card-header">
+                            <div class="card-title">סטטוס אבטחה</div>
+                            <div class="card-icon">🔒</div>
+                        </div>
+                        <div class="card-value">98%</div>
+                        <div class="card-description">רמת אבטחה מצוינת</div>
+                    </div>
+
+                    <div class="dashboard-card card-success">
+                        <div class="card-header">
+                            <div class="card-title">משתמשים מחוברים</div>
+                            <div class="card-icon">👤</div>
+                        </div>
+                        <div class="card-value">24</div>
+                        <div class="card-description">פעילים כעת במערכת</div>
+                    </div>
+                </div>
+
+                <!-- טבלת התראות אחרונות -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">התראות אחרונות</div>
+                        <button class="btn btn-primary" onclick="showSection('alerts')">צפה בכל ההתראות</button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>תלמיד</th>
+                                <th>סוג התראה</th>
+                                <th>רמת חומרה</th>
+                                <th>זמן</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>שרה מרטינס</td>
+                                <td>בעיה חברתית</td>
+                                <td><span class="status-badge status-high">גבוה</span></td>
+                                <td>21/01/2024 08:30</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">צפה</button>
+                                    <button class="btn btn-success">פתור</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>דוד לוי</td>
+                                <td>בעיה התנהגותית</td>
+                                <td><span class="status-badge status-medium">בינוני</span></td>
+                                <td>20/01/2024 11:45</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('david_levi')">צפה</button>
+                                    <button class="btn btn-success">פתור</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>מיכל כהן</td>
+                                <td>בעיה אקדמית</td>
+                                <td><span class="status-badge status-low">נמוך</span></td>
+                                <td>19/01/2024 14:20</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('michal_cohen')">צפה</button>
+                                    <button class="btn btn-success">פתור</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- הדגמת תכונות מתקדמות -->
+                <div class="card demo-highlight">
+                    <div class="card-header">
+                        <div class="card-title">🚀 הדגמת יכולות מתקדמות</div>
+                    </div>
+                    <p>הדגמת היכולות הטכניות המתקדמות של מערכת SafeGuard Pro:</p>
+                    <div class="feature-buttons">
+                        <button class="btn btn-primary" onclick="demonstrateAI()">
+                            🤖 הדגמת יכולות AI
+                        </button>
+                        <button class="btn btn-warning" onclick="demonstrateProblemSolving()">
+                            🔧 פתרון בעיות אוטומטי
+                        </button>
+                        <button class="btn btn-success" onclick="demonstratePerformance()">
+                            ⚡ אופטימיזציית ביצועים
+                        </button>
+                        <button class="btn btn-info" onclick="generateReport()">
+                            📊 דוח מתקדם
+                        </button>
+                        <button class="btn btn-danger" onclick="demonstrateSecurityScan()">
+                            🔍 סריקת אבטחה
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- מעקב תלמידים -->
+            <section id="students-section" class="hidden">
+                <h1 class="page-title">מעקב תלמידים</h1>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">רשימת תלמידים</div>
+                        <button class="btn btn-primary" onclick="showAddStudentModal()">➕ הוסף תלמיד</button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>שם התלמיד</th>
+                                <th>כיתה</th>
+                                <th>רמת סיכון</th>
+                                <th>עדכון אחרון</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>שרה מרטינס</td>
+                                <td>כיתה ז</td>
+                                <td><span class="status-badge status-high">גבוה</span></td>
+                                <td>21/01/2024 10:30</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">צפה</button>
+                                    <button class="btn btn-warning">ערוך</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>דוד לוי</td>
+                                <td>כיתה ח</td>
+                                <td><span class="status-badge status-medium">בינוני</span></td>
+                                <td>20/01/2024 14:20</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('david_levi')">צפה</button>
+                                    <button class="btn btn-warning">ערוך</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>מיכל כהן</td>
+                                <td>כיתה ו</td>
+                                <td><span class="status-badge status-low">נמוך</span></td>
+                                <td>19/01/2024 09:15</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('michal_cohen')">צפה</button>
+                                    <button class="btn btn-warning">ערוך</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ניהול התראות -->
+            <section id="alerts-section" class="hidden">
+                <h1 class="page-title">ניהול התראות</h1>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">כל ההתראות</div>
+                        <button class="btn btn-primary" onclick="showCreateAlertModal()">🚨 צור התראה חדשה</button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>תלמיד</th>
+                                <th>סוג התראה</th>
+                                <th>חומרה</th>
+                                <th>סטטוס</th>
+                                <th>נוצר</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>שרה מרטינס</td>
+                                <td>בעיה חברתית</td>
+                                <td><span class="status-badge status-high">גבוה</span></td>
+                                <td><span class="status-badge status-new">חדש</span></td>
+                                <td>21/01/2024 08:30</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">צפה</button>
+                                    <button class="btn btn-success">פתור</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>דוד לוי</td>
+                                <td>בעיה התנהגותית</td>
+                                <td><span class="status-badge status-medium">בינוני</span></td>
+                                <td><span class="status-badge status-medium">בטיפול</span></td>
+                                <td>20/01/2024 11:45</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('david_levi')">צפה</button>
+                                    <button class="btn btn-success">פתור</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- דוחות -->
+            <section id="reports-section" class="hidden">
+                <h1 class="page-title">דוחות ואנליטיקה</h1>
+                
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">דוח שבועי</div>
+                            <div class="card-icon">📈</div>
+                        </div>
+                        <p>דוח מפורט על פעילות השבוע הנוכחי</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="generateWeeklyReport()">צור דוח</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">דוח חודשי</div>
+                            <div class="card-icon">📊</div>
+                        </div>
+                        <p>סיכום חודשי של כל הפעילויות</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="generateMonthlyReport()">צור דוח</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">דוח אבטחה</div>
+                            <div class="card-icon">🔒</div>
+                        </div>
+                        <p>דוח מפורט על פעילות אבטחה והרשאות</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="generateSecurityReport()">צור דוח</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">דוח מותאם אישית</div>
+                            <div class="card-icon">⚙️</div>
+                        </div>
+                        <p>צור דוח לפי הקריטריונים שלך</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="showCustomReport()">התחל</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- מרכז אבטחה חדש -->
+            <section id="security-section" class="hidden">
+                <h1 class="page-title">🔒 מרכז אבטחה ומערכות הגנה</h1>
+                
+                <!-- סטטוס אבטחה -->
+                <div class="dashboard-cards">
+                    <div class="dashboard-card card-success">
+                        <div class="card-header">
+                            <div class="card-title">סטטוס מערכת</div>
+                            <div class="card-icon">✅</div>
+                        </div>
+                        <div class="card-value">מאובטח</div>
+                        <div class="card-description">כל המערכות פועלות כרגיל</div>
+                    </div>
+
+                    <div class="dashboard-card card-info">
+                        <div class="card-header">
+                            <div class="card-title">משתמשים מחוברים</div>
+                            <div class="card-icon">👥</div>
+                        </div>
+                        <div class="card-value">24</div>
+                        <div class="card-description">פעילים ברגע זה</div>
+                    </div>
+
+                    <div class="dashboard-card card-warning">
+                        <div class="card-header">
+                            <div class="card-title">ניסיונות חשודים</div>
+                            <div class="card-icon">⚠️</div>
+                        </div>
+                        <div class="card-value">3</div>
+                        <div class="card-description">השעה האחרונה</div>
+                    </div>
+
+                    <div class="dashboard-card card-success">
+                        <div class="card-header">
+                            <div class="card-title">גיבויים</div>
+                            <div class="card-icon">💾</div>
+                        </div>
+                        <div class="card-value">100%</div>
+                        <div class="card-description">גיבוי אוטומטי פעיל</div>
+                    </div>
+                </div>
+
+                <!-- מטריצת הרשאות -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🔑 מטריצת הרשאות</div>
+                    </div>
+                    <div class="permission-matrix">
+                        <div class="permission-header">תפקיד</div>
+                        <div class="permission-header">צפייה בתלמידים</div>
+                        <div class="permission-header">עריכת נתונים</div>
+                        <div class="permission-header">יצירת דוחות</div>
+                        <div class="permission-header">ניהול משתמשים</div>
+                        
+                        <div class="permission-cell">מורה</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-denied">✗</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-denied">✗</div>
+                        
+                        <div class="permission-cell">יועץ</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-denied">✗</div>
+                        
+                        <div class="permission-cell">מנהל</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        
+                        <div class="permission-cell">מנהל מערכת</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                        <div class="permission-cell permission-granted">✓</div>
+                    </div>
+                </div>
+
+                <!-- לוג פעילות -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📋 לוג פעילות אחרון</div>
+                        <button class="btn btn-primary" onclick="refreshActivityLog()">רענן</button>
+                    </div>
+                    <div class="activity-log" id="activityLog">
+                        <div class="log-entry success">
+                            <span>התחברות מוצלחת - מורה רחל כהן</span>
+                            <span>15:30:45</span>
+                        </div>
+                        <div class="log-entry">
+                            <span>צפייה בפרופיל תלמיד - שרה מרטינס</span>
+                            <span>15:28:12</span>
+                        </div>
+                        <div class="log-entry warning">
+                            <span>ניסיון התחברות כושל - IP: 192.168.1.100</span>
+                            <span>15:25:33</span>
+                        </div>
+                        <div class="log-entry success">
+                            <span>יצירת דוח שבועי - יועץ דני לוי</span>
+                            <span>15:20:01</span>
+                        </div>
+                        <div class="log-entry error">
+                            <span>זוהה ניסיון גישה לא מורשה</span>
+                            <span>15:15:22</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- כלי אבטחה -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🛠️ כלי אבטחה ובקרה</div>
+                    </div>
+                    <div class="feature-buttons">
+                        <button class="btn btn-primary" onclick="runSecurityScan()">
+                            🔍 הרץ סריקת אבטחה
+                        </button>
+                        <button class="btn btn-warning" onclick="lockSuspiciousAccounts()">
+                            🔒 נעל חשבונות חשודים
+                        </button>
+                        <button class="btn btn-success" onclick="runBackup()">
+                            💾 הרץ גיבוי מיידי
+                        </button>
+                        <button class="btn btn-info" onclick="exportSecurityLog()">
+                            📤 ייצא לוג אבטחה
+                        </button>
+                        <button class="btn btn-danger" onclick="emergencyLockdown()">
+                            🚨 נעילת חירום
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- הגדרות -->
+            <section id="settings-section" class="hidden">
+                <h1 class="page-title">הגדרות מערכת</h1>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">הגדרות התראות</div>
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked> 
+                                קבלת התראות במייל
+                            </label>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox"> 
+                                קבלת התראות ב-SMS
+                            </label>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">רמת התראות מינימלית</label>
+                            <select style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: 6px; width: 200px;">
+                                <option value="low">נמוך</option>
+                                <option value="medium" selected>בינוני</option>
+                                <option value="high">גבוה</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-success" onclick="saveSettings()">שמור הגדרות</button>
+                    </div>
+                </div>
+
+                <!-- הגדרות אבטחה חדשות -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🔒 הגדרות אבטחה מתקדמות</div>
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked> 
+                                אימות דו-שלבי (2FA)
+                            </label>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked> 
+                                אימות ביומטרי
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox"> 
+                                נעילה אוטומטית לאחר חוסר פעילות
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" checked> 
+                                רישום כל הפעולות (Audit Trail)
+                            </label>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">זמן תפוגת סשן (דקות)</label>
+                            <select style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: 6px; width: 200px;">
+                                <option value="15">15 דקות</option>
+                                <option value="30" selected>30 דקות</option>
+                                <option value="60">60 דקות</option>
+                                <option value="120">120 דקות</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">מספר ניסיונות התחברות מקסימלי</label>
+                            <select style="padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: 6px; width: 200px;">
+                                <option value="3" selected>3 ניסיונות</option>
+                                <option value="5">5 ניסיונות</option>
+                                <option value="10">10 ניסיונות</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-success" onclick="saveSecuritySettings()">שמור הגדרות אבטחה</button>
+                    </div>
+                </div>
+
+                <!-- הסבר על הרשאות -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">👥 מידע על הרשאות המערכת</div>
+                    </div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">הרשאות לפי תפקידים:</h4>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                            <strong style="color: var(--success);">👩‍🏫 מורה:</strong><br>
+                            • צפייה בתלמידים ובפרטיהם<br>
+                            • יצירת והתראות<br>
+                            • גישה ללוח הבקרה וההגדרות<br>
+                            • ❌ אין גישה לדוחות ומרכז אבטחה
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                            <strong style="color: var(--warning);">👨‍💼 יועץ חינוכי:</strong><br>
+                            • כל הרשאות המורה<br>
+                            • ✅ יצירת דוחות מתקדמים<br>
+                            • עריכת נתוני תלמידים<br>
+                            • ❌ אין גישה למרכז אבטחה
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                            <strong style="color: var(--info);">👩‍💼 מנהל/ת בית ספר:</strong><br>
+                            • כל הרשאות היועץ<br>
+                            • ✅ ניהול כל התלמידים והמשתמשים<br>
+                            • גישה מלאה לכל הדוחות<br>
+                            • ❌ אין גישה למרכז אבטחה
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                            <strong style="color: var(--error);">🔧 מנהל מערכת:</strong><br>
+                            • ✅ הרשאות מלאות לכל חלקי המערכת<br>
+                            • ✅ גישה למרכז האבטחה<br>
+                            • ניהול הרשאות משתמשים<br>
+                            • בקרת אבטחה ולוגים
+                        </div>
+                        
+                        <div style="background: rgba(14, 165, 233, 0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid var(--info);">
+                            <strong>💡 הערה:</strong> אם נכנסת דרך פייסבוק/גוגל/טוויטר, אתה מקבל אוטומטית הרשאות מורה. 
+                            למעבר לתפקיד אחר, פנה למנהל המערכת.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // === משתנים גלובליים ===
+        let currentUser = null;
+        let securitySystem = {
+            loginAttempts: {},
+            activeSessions: [],
+            auditLog: [],
+            sessionTimeout: 30, // דקות
+            maxLoginAttempts: 3,
+            twoFactorEnabled: true,
+            biometricEnabled: true
+        };
+
+        // === מערכת אבטחה מתקדמת ===
+        function initSecuritySystem() {
+            // התחלת טיימר סשן
+            startSessionTimer();
+            
+            // מעקב אחר פעילות משתמש
+            document.addEventListener('click', resetSessionTimer);
+            document.addEventListener('keypress', resetSessionTimer);
+            
+            // עדכון אינדיקטור אבטחה
+            updateSecurityIndicator();
+            
+            // בדיקת אבטחה תקופתית
+            setInterval(securityCheck, 60000); // כל דקה
+        }
+
+        function logActivity(action, details = '') {
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                user: currentUser ? currentUser.name : 'Anonymous',
+                action: action,
+                details: details,
+                ip: '192.168.1.50', // סימולציה
+                userAgent: navigator.userAgent.substring(0, 50) + '...'
+            };
+            
+            securitySystem.auditLog.unshift(logEntry);
+            
+            // הגבלת גודל הלוג
+            if (securitySystem.auditLog.length > 1000) {
+                securitySystem.auditLog = securitySystem.auditLog.slice(0, 1000);
+            }
+            
+            console.log('Security Log:', logEntry);
+        }
+
+        function updateSecurityIndicator() {
+            const indicator = document.getElementById('securityIndicator');
+            const threats = securitySystem.auditLog.filter(log => 
+                log.action.includes('failed') || log.action.includes('suspicious')
+            ).length;
+
+            if (threats > 5) {
+                indicator.className = 'security-indicator danger';
+                indicator.innerHTML = '🚨 איומי אבטחה זוהו';
+            } else if (threats > 2) {
+                indicator.className = 'security-indicator warning';
+                indicator.innerHTML = '⚠️ פעילות חשודה';
+            } else {
+                indicator.className = 'security-indicator';
+                indicator.innerHTML = '🔒 מערכת מאובטחת';
+            }
+        }
+
+        function securityCheck() {
+            if (!currentUser) return;
+            
+            // בדיקת תפוגת סשן
+            checkSessionTimeout();
+            
+            // בדיקת פעילות חשודה
+            detectSuspiciousActivity();
+            
+            // עדכון אינדיקטור
+            updateSecurityIndicator();
+        }
+
+        let sessionStartTime = null;
+        let lastActivityTime = null;
+
+        function startSessionTimer() {
+            sessionStartTime = new Date();
+            lastActivityTime = new Date();
+            updateSessionDisplay();
+            
+            setInterval(updateSessionDisplay, 1000);
+        }
+
+        function resetSessionTimer() {
+            lastActivityTime = new Date();
+        }
+
+        function updateSessionDisplay() {
+            if (!sessionStartTime) return;
+            
+            const now = new Date();
+            const sessionDuration = Math.floor((now - sessionStartTime) / 1000 / 60);
+            const timeSinceActivity = Math.floor((now - lastActivityTime) / 1000 / 60);
+            
+            const timerElement = document.getElementById('sessionTimer');
+            if (timerElement) {
+                timerElement.textContent = `סשן: ${sessionDuration}ד׳`;
+                
+                if (timeSinceActivity >= securitySystem.sessionTimeout) {
+                    handleSessionTimeout();
+                }
+            }
+        }
+
+        function checkSessionTimeout() {
+            if (!lastActivityTime) return;
+            
+            const now = new Date();
+            const minutesSinceActivity = Math.floor((now - lastActivityTime) / 1000 / 60);
+            
+            if (minutesSinceActivity >= securitySystem.sessionTimeout) {
+                handleSessionTimeout();
+            }
+        }
+
+        function handleSessionTimeout() {
+            logActivity('session_timeout', 'User session expired due to inactivity');
+            showAppMessage('⏰ הסשן פג תוקף עקב חוסר פעילות', 'warning');
+            setTimeout(() => {
+                handleLogout();
+            }, 3000);
+        }
+
+        function detectSuspiciousActivity() {
+            // דמיון זיהוי פעילות חשודה
+            const recentLogs = securitySystem.auditLog.slice(0, 10);
+            const failedLogins = recentLogs.filter(log => log.action.includes('failed')).length;
+            
+            if (failedLogins > 3) {
+                logActivity('suspicious_activity_detected', `Multiple failed login attempts: ${failedLogins}`);
+                showAppMessage('🚨 זוהתה פעילות חשודה - ניסיונות התחברות כושלים מרובים', 'error');
+            }
+        }
+
+        // === פונקציות אימות מתקדמות ===
+        function performBiometricAuth() {
+            const scanner = document.querySelector('.biometric-scanner');
+            scanner.innerHTML = '🔄';
+            scanner.style.animation = 'none';
+            
+            showMessage('🔍 מבצע סריקה ביומטרית...', 'info');
+            
+            setTimeout(() => {
+                // סימולציה של הצלחה/כישלון אקראי
+                const success = Math.random() > 0.2; // 80% הצלחה
+                
+                if (success) {
+                    scanner.innerHTML = '✅';
+                    scanner.style.borderColor = 'var(--success)';
+                    showMessage('✅ אימות ביומטרי הצליח!', 'success');
+                    logActivity('biometric_auth_success', 'Biometric authentication successful');
+                    
+                    setTimeout(() => {
+                        if (securitySystem.twoFactorEnabled) {
+                            showTwoFactorAuth();
+                        } else {
+                            completeLogin();
+                        }
+                    }, 1000);
+                } else {
+                    scanner.innerHTML = '❌';
+                    scanner.style.borderColor = 'var(--error)';
+                    showMessage('❌ אימות ביומטרי נכשל! נסה שוב', 'error');
+                    logActivity('biometric_auth_failed', 'Biometric authentication failed');
+                    
+                    setTimeout(() => {
+                        scanner.innerHTML = '👆';
+                        scanner.style.borderColor = 'var(--primary)';
+                        scanner.style.animation = 'scan 2s infinite';
+                    }, 2000);
+                }
+            }, 2000);
+        }
+
+        function skipBiometric() {
+            logActivity('biometric_auth_skipped', 'User skipped biometric authentication');
+            if (securitySystem.twoFactorEnabled) {
+                showTwoFactorAuth();
+            } else {
+                completeLogin();
+            }
+        }
+
+        function showTwoFactorAuth() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('biometricAuth').style.display = 'none';
+            document.getElementById('twoFactorAuth').style.display = 'block';
+            
+            // סימולציה של שליחת SMS
+            const phoneNumber = '***-***-1234';
+            showMessage(`📱 קוד אימות נשלח ל-${phoneNumber}`, 'info');
+            logActivity('2fa_code_sent', `Code sent to ${phoneNumber}`);
+        }
+
+        function moveToNext(current, index) {
+            if (current.value.length === 1) {
+                const inputs = document.querySelectorAll('.two-factor-input input');
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                
+                // בדיקה אוטומטית כשכל הקודים מולאו
+                const allFilled = Array.from(inputs).every(input => input.value.length === 1);
+                if (allFilled) {
+                    setTimeout(() => verifyTwoFactor(), 500);
+                }
+            }
+        }
+
+        function verifyTwoFactor() {
+            const inputs = document.querySelectorAll('.two-factor-input input');
+            const code = Array.from(inputs).map(input => input.value).join('');
+            
+            if (code.length !== 6) {
+                showMessage('יש להזין קוד בן 6 ספרות', 'error');
+                return;
+            }
+            
+            showMessage('🔍 מאמת קוד...', 'info');
+            
+            // סימולציה של אימות
+            setTimeout(() => {
+                // קוד נכון לדמו: 123456
+                if (code === '123456' || Math.random() > 0.3) {
+                    showMessage('✅ הקוד אומת בהצלחה!', 'success');
+                    logActivity('2fa_success', 'Two-factor authentication successful');
+                    setTimeout(() => completeLogin(), 1000);
+                } else {
+                    showMessage('❌ קוד שגוי! נסה שוב', 'error');
+                    logActivity('2fa_failed', 'Two-factor authentication failed');
+                    // איפוס השדות
+                    inputs.forEach(input => {
+                        input.value = '';
+                        input.style.borderColor = 'var(--error)';
+                    });
+                    setTimeout(() => {
+                        inputs.forEach(input => input.style.borderColor = 'var(--gray-200)');
+                        inputs[0].focus();
+                    }, 1000);
+                }
+            }, 1500);
+        }
+
+        function resendCode() {
+            showMessage('📱 קוד חדש נשלח!', 'info');
+            logActivity('2fa_code_resent', 'User requested new 2FA code');
+        }
+
+        function completeLogin() {
+            logActivity('login_success', `User ${currentUser.name} logged in successfully`);
+            showApp();
+        }
+
+        // === פונקציות שחזור סיסמה ===
+        function showForgotPassword() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('forgotPasswordForm').style.display = 'block';
+        }
+
+        function backToLogin() {
+            document.getElementById('forgotPasswordForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function sendPasswordReset() {
+            const email = document.getElementById('resetEmail').value;
+            
+            if (!email) {
+                showMessage('יש להזין כתובת אימייל', 'error');
+                return;
+            }
+            
+            showMessage('📧 קישור איפוס נשלח לאימייל!', 'success');
+            logActivity('password_reset_requested', `Password reset requested for ${email}`);
+            
+            setTimeout(() => {
+                backToLogin();
+            }, 2000);
+        }
+
+        // === פונקציות אבטחה מתקדמות במערכת ===
+        function showSecurityPanel() {
+            showSection('security');
+        }
+
+        function runSecurityScan() {
+            showAppMessage('🔍 מריץ סריקת אבטחה מקיפה...', 'info');
+            
+            setTimeout(() => {
+                const threats = Math.floor(Math.random() * 5);
+                const vulnerabilities = Math.floor(Math.random() * 3);
+                
+                logActivity('security_scan_completed', `Found ${threats} threats, ${vulnerabilities} vulnerabilities`);
+                
+                if (threats > 0 || vulnerabilities > 0) {
+                    showAppMessage(`⚠️ הסריקה הושלמה: נמצאו ${threats} איומים ו-${vulnerabilities} פגיעויות`, 'warning');
+                } else {
+                    showAppMessage('✅ הסריקה הושלמה: לא נמצאו איומים או פגיעויות!', 'success');
+                }
+            }, 3000);
+        }
+
+        function lockSuspiciousAccounts() {
+            showAppMessage('🔒 נועל חשבונות חשודים...', 'warning');
+            
+            setTimeout(() => {
+                const lockedAccounts = Math.floor(Math.random() * 3) + 1;
+                logActivity('suspicious_accounts_locked', `Locked ${lockedAccounts} suspicious accounts`);
+                showAppMessage(`🔒 ${lockedAccounts} חשבונות חשודים ננעלו בהצלחה`, 'success');
+            }, 2000);
+        }
+
+        function runBackup() {
+            showAppMessage('💾 מתחיל גיבוי מיידי...', 'info');
+            
+            setTimeout(() => {
+                logActivity('backup_completed', 'Manual backup completed successfully');
+                showAppMessage('✅ הגיבוי הושלם בהצלחה! כל הנתונים מוגבים', 'success');
+            }, 4000);
+        }
+
+        function exportSecurityLog() {
+            showAppMessage('📤 מייצא לוג אבטחה...', 'info');
+            
+            setTimeout(() => {
+                const logData = securitySystem.auditLog.map(entry => 
+                    `${entry.timestamp} | ${entry.user} | ${entry.action} | ${entry.details}`
+                ).join('\n');
+                
+                const blob = new Blob([logData], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `security_log_${new Date().toISOString().split('T')[0]}.txt`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                
+                logActivity('security_log_exported', 'Security log exported');
+                showAppMessage('✅ לוג האבטחה יוצא בהצלחה!', 'success');
+            }, 1000);
+        }
+
+        function emergencyLockdown() {
+            const confirm = window.confirm('האם אתה בטוח שברצונך לבצע נעילת חירום? פעולה זו תנתק את כל המשתמשים!');
+            
+            if (confirm) {
+                showAppMessage('🚨 מבצע נעילת חירום! מנתק את כל המשתמשים...', 'error');
+                logActivity('emergency_lockdown_initiated', 'System emergency lockdown initiated');
+                
+                setTimeout(() => {
+                    showAppMessage('🔒 נעילת חירום הושלמה. המערכת נעולה', 'error');
+                    setTimeout(() => {
+                        handleLogout();
+                    }, 2000);
+                }, 3000);
+            }
+        }
+
+        function refreshActivityLog() {
+            showAppMessage('🔄 מרענן לוג פעילות...', 'info');
+            
+            // הוספת כמה רשומות דמו חדשות
+            const demoActions = [
+                'file_accessed',
+                'report_generated', 
+                'user_created',
+                'settings_changed',
+                'login_attempt'
+            ];
+            
+            setTimeout(() => {
+                const randomAction = demoActions[Math.floor(Math.random() * demoActions.length)];
+                logActivity(randomAction, 'Demo activity for refresh');
+                
+                updateActivityLogDisplay();
+                showAppMessage('✅ לוג הפעילות עודכן', 'success');
+            }, 1000);
+        }
+
+        function updateActivityLogDisplay() {
+            const logContainer = document.getElementById('activityLog');
+            if (!logContainer) return;
+            
+            const recentLogs = securitySystem.auditLog.slice(0, 10);
+            logContainer.innerHTML = recentLogs.map(log => {
+                const timeStr = new Date(log.timestamp).toLocaleTimeString('he-IL');
+                const className = log.action.includes('failed') || log.action.includes('suspicious') ? 'error' :
+                                 log.action.includes('warning') ? 'warning' :
+                                 log.action.includes('success') ? 'success' : '';
+                
+                return `
+                    <div class="log-entry ${className}">
+                        <span>${log.action} - ${log.user}</span>
+                        <span>${timeStr}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function generateSecurityReport() {
+            showAppMessage('📊 מכין דוח אבטחה מקיף...', 'info');
+            
+            setTimeout(() => {
+                const securityData = {
+                    summary: {
+                        'סה"כ אירועי אבטחה': securitySystem.auditLog.length,
+                        'משתמשים פעילים': 24,
+                        'ניסיונות כישלון': securitySystem.auditLog.filter(log => log.action.includes('failed')).length,
+                        'רמת אבטחה': '98%',
+                        'עדכון אחרון': new Date().toLocaleDateString('he-IL')
+                    },
+                    securityEvents: securitySystem.auditLog.slice(0, 20).map(log => ({
+                        'זמן': new Date(log.timestamp).toLocaleString('he-IL'),
+                        'משתמש': log.user,
+                        'פעולה': log.action,
+                        'פרטים': log.details || 'N/A',
+                        'IP': log.ip || 'N/A'
+                    }))
+                };
+                
+                showSecurityReportModal('דוח אבטחה מקיף', securityData);
+                logActivity('security_report_generated', 'Comprehensive security report generated');
+            }, 2000);
+        }
+
+        function showSecurityReportModal(title, data) {
+            const modalHtml = `
+                <div id="securityReportModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
+                    justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease;
+                ">
+                    <div style="
+                        background: white; border-radius: 20px; max-width: 95%; width: 1200px;
+                        max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, var(--error), #dc2626);
+                            color: white; padding: 1.5rem; border-radius: 20px 20px 0 0;
+                            display: flex; justify-content: space-between; align-items: center;
+                        ">
+                            <h2 style="margin: 0;">🔒 ${title} - ${new Date().toLocaleDateString('he-IL')}</h2>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <button onclick="downloadSecurityReport('${title}')" style="
+                                    background: rgba(255, 255, 255, 0.2); border: none; color: white;
+                                    padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;
+                                ">💾 הורד</button>
+                                <button onclick="closeModal('securityReportModal')" style="
+                                    background: rgba(255, 255, 255, 0.2); border: none; color: white;
+                                    font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+                                ">&times;</button>
+                            </div>
+                        </div>
+
+                        <div style="padding: 2rem;">
+                            <!-- סיכום אבטחה -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">📊 סיכום מצב אבטחה</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                    ${Object.entries(data.summary).map(([key, value]) => `
+                                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                                            <h4 style="margin-bottom: 0.5rem;">${key}</h4>
+                                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--error);">${value}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- אירועי אבטחה -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">🚨 אירועי אבטחה אחרונים</div>
+                                </div>
+                                ${generateTable(data.securityEvents)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            showAppMessage('✅ דוח האבטחה נוצר בהצלחה!', 'success');
+        }
+
+        function downloadSecurityReport(title) {
+            showAppMessage('💾 מכין קובץ דוח אבטחה להורדה...', 'info');
+            
+            setTimeout(() => {
+                let content = `${title} - ${new Date().toLocaleDateString('he-IL')}\n`;
+                content += `נוצר על ידי: ${currentUser.name}\n`;
+                content += `תאריך ושעה: ${new Date().toLocaleString('he-IL')}\n`;
+                content += '='.repeat(60) + '\n\n';
+                
+                content += 'סיכום מצב אבטחה:\n';
+                content += `- סה"כ אירועי אבטחה: ${securitySystem.auditLog.length}\n`;
+                content += `- משתמשים פעילים: 24\n`;
+                content += `- ניסיונות כישלון: ${securitySystem.auditLog.filter(log => log.action.includes('failed')).length}\n`;
+                content += `- רמת אבטחה: 98%\n\n`;
+                
+                content += 'אירועי אבטחה אחרונים:\n';
+                content += '-'.repeat(60) + '\n';
+                securitySystem.auditLog.slice(0, 50).forEach(log => {
+                    content += `${new Date(log.timestamp).toLocaleString('he-IL')} | ${log.user} | ${log.action}\n`;
+                    if (log.details) content += `  פרטים: ${log.details}\n`;
+                    content += '\n';
+                });
+                
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `דוח_אבטחה_${new Date().toISOString().split('T')[0]}.txt`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                
+                logActivity('security_report_downloaded', 'Security report downloaded');
+                showAppMessage('✅ דוח האבטחה הורד בהצלחה!', 'success');
+            }, 1000);
+        }
+
+        function saveSecuritySettings() {
+            showAppMessage('🔒 שומר הגדרות אבטחה...', 'info');
+            
+            setTimeout(() => {
+                logActivity('security_settings_updated', 'Security settings updated');
+                showAppMessage('✅ הגדרות האבטחה נשמרו בהצלחה!', 'success');
+            }, 1000);
+        }
+
+        function demonstrateSecurityScan() {
+            showAppMessage('🔍 מדמה סריקת אבטחה מתקדמת...', 'info');
+            
+            setTimeout(() => showAppMessage('🔄 סורק רשת...', 'info'), 1000);
+            setTimeout(() => showAppMessage('🔄 בודק הרשאות...', 'info'), 2000);
+            setTimeout(() => showAppMessage('🔄 מנתח לוגים...', 'info'), 3000);
+            setTimeout(() => showAppMessage('✅ הסריקה הושלמה! לא נמצאו איומים', 'success'), 4000);
+        }
+
+        // === נתוני תלמידים ===
+        const studentsData = {
+            'sarah_martins': {
+                id: 'sarah_martins',
+                firstName: 'שרה',
+                lastName: 'מרטינס',
+                grade: 'ז',
+                studentId: '123456789',
+                riskLevel: 'high',
+                avatar: '👧',
+                lastUpdate: '21/01/2024 10:30',
+                personalInfo: {
+                    birthDate: '15/03/2010',
+                    address: 'רחוב הדס 12, תל אביב',
+                    phone: '03-1234567',
+                    parentName: 'דינה מרטינס',
+                    parentPhone: '050-1234567'
+                },
+                academicInfo: {
+                    averageGrade: 78,
+                    attendance: 85,
+                    subjects: [
+                        { name: 'מתמטיקה', grade: 75, trend: 'down' },
+                        { name: 'עברית', grade: 82, trend: 'stable' },
+                        { name: 'אנגלית', grade: 88, trend: 'up' },
+                        { name: 'מדעים', grade: 70, trend: 'down' }
+                    ]
+                },
+                behaviorInfo: {
+                    incidents: 3,
+                    lastIncident: '18/01/2024',
+                    notes: 'מראה סימני בדידות ונסיגה חברתית'
+                },
+                alerts: [
+                    {
+                        id: 'alert_001',
+                        type: 'social',
+                        severity: 'high',
+                        status: 'new',
+                        title: 'בדידות חברתית',
+                        description: 'התלמידה נמנעת מפעילויות חברתיות ומבלה לבדה בהפסקות',
+                        createdAt: '21/01/2024 08:30',
+                        createdBy: 'מורה רחל כהן'
+                    },
+                    {
+                        id: 'alert_002',
+                        type: 'academic',
+                        severity: 'medium',
+                        status: 'in_progress',
+                        title: 'ירידה בציונים במתמטיקה',
+                        description: 'ירידה של 15 נקודות בממוצע במתמטיקה בחודש האחרון',
+                        createdAt: '18/01/2024 14:20',
+                        createdBy: 'מורה מתמטיקה'
+                    }
+                ]
+            },
+            'david_levi': {
+                id: 'david_levi',
+                firstName: 'דוד',
+                lastName: 'לוי',
+                grade: 'ח',
+                studentId: '987654321',
+                riskLevel: 'medium',
+                avatar: '👦',
+                lastUpdate: '20/01/2024 14:20',
+                personalInfo: {
+                    birthDate: '22/07/2009',
+                    address: 'רחוב הרצל 45, רמת גן',
+                    phone: '03-9876543',
+                    parentName: 'משה לוי',
+                    parentPhone: '052-9876543'
+                },
+                academicInfo: {
+                    averageGrade: 82,
+                    attendance: 92,
+                    subjects: [
+                        { name: 'מתמטיקה', grade: 85, trend: 'up' },
+                        { name: 'עברית', grade: 78, trend: 'stable' },
+                        { name: 'אנגלית', grade: 80, trend: 'stable' },
+                        { name: 'מדעים', grade: 88, trend: 'up' }
+                    ]
+                },
+                behaviorInfo: {
+                    incidents: 2,
+                    lastIncident: '15/01/2024',
+                    notes: 'בעיות קלות בהתנהגות, מפריע מדי פעם בשיעור'
+                },
+                alerts: [
+                    {
+                        id: 'alert_003',
+                        type: 'behavior',
+                        severity: 'medium',
+                        status: 'in_progress',
+                        title: 'הפרעה בשיעור',
+                        description: 'מפריע לחברים בכיתה ומקשה על המורה להמשיך בשיעור',
+                        createdAt: '20/01/2024 11:45',
+                        createdBy: 'מורה רחל כהן'
+                    }
+                ]
+            },
+            'michal_cohen': {
+                id: 'michal_cohen',
+                firstName: 'מיכל',
+                lastName: 'כהן',
+                grade: 'ו',
+                studentId: '456789123',
+                riskLevel: 'low',
+                avatar: '👧',
+                lastUpdate: '19/01/2024 09:15',
+                personalInfo: {
+                    birthDate: '10/11/2010',
+                    address: 'רחוב בן גוריון 8, פתח תקווה',
+                    phone: '03-5555555',
+                    parentName: 'יעל כהן',
+                    parentPhone: '054-5555555'
+                },
+                academicInfo: {
+                    averageGrade: 92,
+                    attendance: 98,
+                    subjects: [
+                        { name: 'מתמטיקה', grade: 95, trend: 'up' },
+                        { name: 'עברית', grade: 90, trend: 'stable' },
+                        { name: 'אנגלית', grade: 94, trend: 'up' },
+                        { name: 'מדעים', grade: 89, trend: 'stable' }
+                    ]
+                },
+                behaviorInfo: {
+                    incidents: 0,
+                    lastIncident: 'אין',
+                    notes: 'תלמידה מצטיינת עם התנהגות מופתית'
+                },
+                alerts: []
+            }
+        };
+
+        // === פונקציות התחברות מתקדמות ===
+        function showRegisterPage() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'flex';
+        }
+
+        function showLoginPage() {
+            document.getElementById('registerPage').style.display = 'none';
+            document.getElementById('appPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('regFirstName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const role = document.getElementById('regRole').value;
+            const institution = document.getElementById('regInstitution').value.trim();
+
+            // בדיקות אימות מתקדמות
+            if (!firstName || !lastName || !email || !phone || !password || !role || !institution) {
+                showRegisterMessage('יש למלא את כל השדות הנדרשים', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showRegisterMessage('הסיסמאות אינן תואמות', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showRegisterMessage('הסיסמה חייבת להכיל לפחות 8 תווים', 'error');
+                return;
+            }
+
+            // בדיקת חוזק סיסמה
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+            if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+                showRegisterMessage('הסיסמה חייבת להכיל אותיות גדולות, קטנות, מספרים ותו מיוחד', 'error');
+                return;
+            }
+
+            // בדיקת פורמט אימייל
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showRegisterMessage('כתובת האימייל אינה תקינה', 'error');
+                return;
+            }
+
+            // בדיקת פורמט טלפון
+            const phoneRegex = /^05[0-9]-?[0-9]{7}$|^0[2-9]-?[0-9]{7,8}$/;
+            if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+                showRegisterMessage('מספר הטלפון אינו תקין', 'error');
+                return;
+            }
+
+            const btn = event.target.querySelector('button[type="submit"]');
+            btn.textContent = 'נרשם...';
+            btn.disabled = true;
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const newUser = {
+                    username: email,
+                    name: `${firstName} ${lastName}`,
+                    email: email,
+                    phone: phone,
+                    role: role,
+                    institution: institution,
+                    registeredAt: new Date(),
+                    isVerified: false
+                };
+
+                logActivity('user_registered', `New user registered: ${newUser.name} (${newUser.role})`);
+                showRegisterMessage(`🎉 ברוך הבא ${firstName}! החשבון נוצר בהצלחה. נשלח אליך אימייל אימות.`, 'success');
+                
+                setTimeout(() => {
+                    currentUser = newUser;
+                    showApp();
+                }, 3000);
+
+            } catch (error) {
+                console.error('שגיאה בהרשמה:', error);
+                showRegisterMessage('שגיאה בהרשמה. נסה שוב מאוחר יותר.', 'error');
+                btn.textContent = 'הירשם למערכת';
+                btn.disabled = false;
+            }
+        }
+
+        function showRegisterMessage(message, type = 'info') {
+            const container = document.getElementById('registerMessageContainer');
+            container.innerHTML = '';
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            container.appendChild(messageElement);
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    if (messageElement.parentNode) messageElement.remove();
+                }, 5000);
+            }
+        }
+
+        // התחברות מרשתות חברתיות עם רישום אבטחה
+        function loginWithFacebook() {
+            showMessage('מתחבר דרך Facebook...', 'info');
+            logActivity('social_login_attempt', 'Facebook login attempted');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: 'facebook_user',
+                    name: 'משתמש Facebook',
+                    role: 'teacher',
+                    loginMethod: 'facebook'
+                };
+                logActivity('social_login_success', 'Facebook login successful');
+                showMessage('התחברת בהצלחה דרך Facebook! 📘', 'success');
+                setTimeout(() => showApp(), 1000);
+            }, 2000);
+        }
+
+        function loginWithGoogle() {
+            showMessage('מתחבר דרך Google...', 'info');
+            logActivity('social_login_attempt', 'Google login attempted');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: 'google_user',
+                    name: 'משתמש Google',
+                    role: 'teacher',
+                    loginMethod: 'google'
+                };
+                logActivity('social_login_success', 'Google login successful');
+                showMessage('התחברת בהצלחה דרך Google! 🔍', 'success');
+                setTimeout(() => showApp(), 1000);
+            }, 2000);
+        }
+
+        function loginWithTwitter() {
+            showMessage('מתחבר דרך Twitter...', 'info');
+            logActivity('social_login_attempt', 'Twitter login attempted');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: 'twitter_user',
+                    name: 'משתמש Twitter',
+                    role: 'teacher',
+                    loginMethod: 'twitter'
+                };
+                logActivity('social_login_success', 'Twitter login successful');
+                showMessage('התחברת בהצלחה דרך Twitter! 🐦', 'success');
+                setTimeout(() => showApp(), 1000);
+            }, 2000);
+        }
+
+        function registerWithFacebook() {
+            showRegisterMessage('נרשם דרך Facebook...', 'info');
+            logActivity('social_registration_attempt', 'Facebook registration attempted');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: 'new_facebook_user',
+                    name: 'משתמש חדש Facebook',
+                    role: 'teacher',
+                    loginMethod: 'facebook',
+                    registeredAt: new Date()
+                };
+                logActivity('social_registration_success', 'Facebook registration successful');
+                showRegisterMessage('נרשמת בהצלחה דרך Facebook! 📘', 'success');
+                setTimeout(() => showApp(), 1000);
+            }, 2000);
+        }
+
+        function registerWithGoogle() {
+            showRegisterMessage('נרשם דרך Google...', 'info');
+            logActivity('social_registration_attempt', 'Google registration attempted');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: 'new_google_user',
+                    name: 'משתמש חדש Google',
+                    role: 'teacher',
+                    loginMethod: 'google',
+                    registeredAt: new Date()
+                };
+                logActivity('social_registration_success', 'Google registration successful');
+                showRegisterMessage('נרשמת בהצלחה דרך Google! 🔍', 'success');
+                setTimeout(() => showApp(), 1000);
+            }, 2000);
+        }
+
+        function registerWithTwitter() {
+            showRegisterMessage('נרשם דרך Twitter...', 'info');
+            logActivity('social_registration_attempt', 'Twitter registration attempted');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: 'new_twitter_user',
+                    name: 'משתמש חדש Twitter',
+                    role: 'teacher',
+                    loginMethod: 'twitter',
+                    registeredAt: new Date()
+                };
+                logActivity('social_registration_success', 'Twitter registration successful');
+                showRegisterMessage('נרשמת בהצלחה דרך Twitter! 🐦', 'success');
+                setTimeout(() => showApp(), 1000);
+            }, 2000);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showMessage('יש למלא שם משתמש וסיסמה', 'error');
+                logActivity('login_failed', 'Empty username or password');
+                return;
+            }
+
+            // בדיקת ניסיונות התחברות כושלים
+            const clientIP = '192.168.1.50'; // סימולציה
+            if (!securitySystem.loginAttempts[clientIP]) {
+                securitySystem.loginAttempts[clientIP] = 0;
+            }
+
+            if (securitySystem.loginAttempts[clientIP] >= securitySystem.maxLoginAttempts) {
+                showMessage('🚫 החשבון נחסם זמנית עקב ניסיונות התחברות כושלים מרובים', 'error');
+                logActivity('login_blocked', `IP ${clientIP} blocked due to too many failed attempts`);
+                return;
+            }
+
+            const btn = document.querySelector('.login-btn');
+            btn.textContent = 'מתחבר...';
+            btn.disabled = true;
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // סימולציה של אימות משתמש
+                const loginSuccess = Math.random() > 0.1; // 90% הצלחה לדמו
+                
+                if (loginSuccess) {
+                    // איפוס ניסיונות כושלים
+                    securitySystem.loginAttempts[clientIP] = 0;
+                    
+                    currentUser = {
+                        username: username,
+                        name: username,
+                        role: 'user',
+                        loginTime: new Date(),
+                        lastActivity: new Date()
+                    };
+
+                    logActivity('login_attempt_success', `User ${username} login successful`);
+                    showMessage(`שלום ${username}! מתחבר למערכת...`, 'success');
+                    
+                    // המשך לשלבי אימות נוספים
+                    document.getElementById('loginForm').style.display = 'none';
+                    
+                    if (securitySystem.biometricEnabled) {
+                        document.getElementById('biometricAuth').style.display = 'block';
+                    } else if (securitySystem.twoFactorEnabled) {
+                        showTwoFactorAuth();
+                    } else {
+                        setTimeout(() => completeLogin(), 1000);
+                    }
+                    
+                } else {
+                    // רישום כישלון
+                    securitySystem.loginAttempts[clientIP]++;
+                    const remainingAttempts = securitySystem.maxLoginAttempts - securitySystem.loginAttempts[clientIP];
+                    
+                    logActivity('login_failed', `Failed login attempt for ${username} from IP ${clientIP}`);
+                    
+                    if (remainingAttempts > 0) {
+                        showMessage(`❌ שם משתמש או סיסמה שגויים. נותרו ${remainingAttempts} ניסיונות`, 'error');
+                    } else {
+                        showMessage('🚫 החשבון נחסם זמנית עקב ניסיונות כושלים מרובים', 'error');
+                        logActivity('account_locked', `Account locked for IP ${clientIP}`);
+                    }
+                    
+                    btn.textContent = 'התחבר למערכת';
+                    btn.disabled = false;
+                }
+
+            } catch (error) {
+                console.error('שגיאה בהתחברות:', error);
+                logActivity('login_error', `Login error: ${error.message}`);
+                showMessage('שגיאה בהתחברות', 'error');
+                btn.textContent = 'התחבר למערכת';
+                btn.disabled = false;
+            }
+        }
+
+        function quickLogin(name, role) {
+            currentUser = {
+                username: name,
+                name: name,
+                role: role,
+                loginTime: new Date(),
+                lastActivity: new Date(),
+                quickLogin: true
+            };
+            
+            logActivity('quick_login_success', `Quick login: ${name} (${role})`);
+            showMessage(`שלום ${name}! מתחבר למערכת...`, 'success');
+            setTimeout(() => completeLogin(), 1000);
+        }
+
+        function showApp() {
+            // הסתרת כל דפי ההתחברות וההרשמה
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'none';
+            
+            // הצגת האפליקציה
+            document.getElementById('appPage').style.display = 'block';
+            
+            // עדכון פרטי המשתמש
+            document.getElementById('currentUser').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role || 'משתמש';
+            
+            // התחלת מערכות אבטחה
+            initSecuritySystem();
+            
+            // וידוא שלוח הבקרה מוצג כברירת מחדל
+            showSection('dashboard');
+            
+            // רישום כניסה למערכת
+            logActivity('app_accessed', `User accessed main application`);
+            
+            // הודעת ברוכים הבאים
+            showAppMessage(`🎉 ברוכים הבאים למערכת SafeGuard Pro!`, 'success');
+        }
+
+        function handleLogout() {
+            try {
+                // רישום יציאה
+                if (currentUser) {
+                    logActivity('logout', `User ${currentUser.name} logged out`);
+                }
+                
+                // ניקוי נתוני המשתמש ומערכת האבטחה
+                currentUser = null;
+                sessionStartTime = null;
+                lastActivityTime = null;
+                
+                // הסתרת האפליקציה לגמרי
+                document.getElementById('appPage').style.display = 'none';
+                document.getElementById('registerPage').style.display = 'none';
+                
+                // הצגת דף התחברות
+                document.getElementById('loginPage').style.display = 'flex';
+                
+                // איפוס כל הטפסים
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('biometricAuth').style.display = 'none';
+                document.getElementById('twoFactorAuth').style.display = 'none';
+                document.getElementById('forgotPasswordForm').style.display = 'none';
+                document.getElementById('messageContainer').innerHTML = '';
+                
+                if (document.getElementById('registerForm')) {
+                    document.getElementById('registerForm').reset();
+                    document.getElementById('registerMessageContainer').innerHTML = '';
+                }
+                
+                // הודעת הצלחה
+                setTimeout(() => {
+                    showMessage('יצאת מהמערכת בהצלחה! 👋', 'success');
+                }, 300);
+                
+                console.log('יציאה הושלמה בהצלחה');
+                
+            } catch (error) {
+                console.error('שגיאה ביציאה:', error);
+                // גיבוי - רענון הדף אם יש בעיה
+                location.reload();
+            }
+        }
+
+        // === ניווט ===
+        function showSection(sectionName) {
+            // בדיקת הרשאות
+            if (!checkPermission(sectionName)) {
+                // הודעות מפורטות לפי סוג הגישה
+                let message = '❌ אין לך הרשאה לגשת לחלק זה של המערכת';
+                let explanation = '';
+                
+                if (sectionName === 'reports') {
+                    message = '📊 גישה מוגבלת לדוחות';
+                    explanation = 'רק יועצים, מנהלים ומנהלי מערכת יכולים לגשת לדוחות. מורים יכולים לצפות בתלמידים וליצור התראות.';
+                } else if (sectionName === 'security') {
+                    message = '🔒 גישה מוגבלת למרכז אבטחה';
+                    explanation = 'רק מנהלי מערכת יכולים לגשת למרכז האבטחה ולהגדרות המתקדמות.';
+                }
+                
+                showAppMessage(message, 'error');
+                if (explanation) {
+                    setTimeout(() => {
+                        showAppMessage(`💡 ${explanation}`, 'info');
+                    }, 2000);
+                }
+                
+                logActivity('permission_denied', `Access denied to section: ${sectionName} (Role: ${currentUser.role})`);
+                return;
+            }
+
+            // הסתרת כל הסקציות
+            document.querySelectorAll('main section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // הצגת הסקציה הנבחרת
+            const targetSection = document.getElementById(`${sectionName}-section`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                logActivity('section_accessed', `Accessed section: ${sectionName}`);
+            }
+            
+            // עדכון ניווט
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            const sectionNames = ['dashboard', 'students', 'alerts', 'reports', 'security', 'settings'];
+            const sectionIndex = sectionNames.indexOf(sectionName);
+            
+            if (sectionIndex !== -1 && navItems[sectionIndex]) {
+                navItems[sectionIndex].classList.add('active');
+            }
+
+            // עדכון תצוגת טבלאות בהתאם לסקציה
+            if (sectionName === 'students') {
+                updateStudentsTable();
+            } else if (sectionName === 'alerts') {
+                updateAlertsTable();
+            } else if (sectionName === 'security') {
+                updateActivityLogDisplay();
+            }
+        }
+
+        function checkPermission(sectionName) {
+            if (!currentUser) return false;
+            
+            const permissions = {
+                'dashboard': ['teacher', 'counselor', 'principal', 'admin'],
+                'students': ['teacher', 'counselor', 'principal', 'admin'],
+                'alerts': ['teacher', 'counselor', 'principal', 'admin'],
+                'reports': ['counselor', 'principal', 'admin'],
+                'security': ['admin'],
+                'settings': ['teacher', 'counselor', 'principal', 'admin']
+            };
+            
+            const allowedRoles = permissions[sectionName] || [];
+            return allowedRoles.includes(currentUser.role) || currentUser.role === 'admin';
+        }
+
+        // === פרופיל תלמיד ===
+        function viewStudentProfile(studentKey) {
+            // בדיקת הרשאה לצפייה בפרטי תלמיד
+            if (!checkPermission('students')) {
+                showAppMessage('❌ אין לך הרשאה לצפות בפרטי תלמידים', 'error');
+                return;
+            }
+
+            const student = studentsData[studentKey];
+            if (!student) {
+                showAppMessage('תלמיד לא נמצא', 'error');
+                return;
+            }
+
+            // רישום צפייה בפרופיל
+            logActivity('student_profile_viewed', `Viewed profile of ${student.firstName} ${student.lastName}`);
+
+            const modalHtml = `
+                <div id="studentProfileModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
+                    justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease;
+                ">
+                    <div style="
+                        background: white; border-radius: 20px; max-width: 900px; width: 90%;
+                        max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                            color: white; padding: 2rem; border-radius: 20px 20px 0 0;
+                            display: flex; align-items: center; gap: 1rem;
+                        ">
+                            <div style="font-size: 4rem;">${student.avatar}</div>
+                            <div>
+                                <h2 style="margin: 0; font-size: 2rem;">${student.firstName} ${student.lastName}</h2>
+                                <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">כיתה ${student.grade} • מספר זהות: ${student.studentId}</p>
+                                <span class="status-badge status-${student.riskLevel}" style="margin-top: 0.5rem; display: inline-block;">
+                                    רמת סיכון: ${getRiskLevelText(student.riskLevel)}
+                                </span>
+                            </div>
+                            <button onclick="closeStudentProfile()" style="
+                                margin-right: auto; background: rgba(255, 255, 255, 0.2);
+                                border: none; color: white; font-size: 1.5rem; width: 40px;
+                                height: 40px; border-radius: 50%; cursor: pointer;
+                            ">&times;</button>
+                        </div>
+
+                        <div style="padding: 2rem;">
+                            <!-- פרטים אישיים -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">👤 פרטים אישיים</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                    <div><strong>תאריך לידה:</strong> ${student.personalInfo.birthDate}</div>
+                                    <div><strong>כתובת:</strong> ${student.personalInfo.address}</div>
+                                    <div><strong>טלפון בית:</strong> ${student.personalInfo.phone}</div>
+                                    <div><strong>שם הורה:</strong> ${student.personalInfo.parentName}</div>
+                                    <div><strong>טלפון הורה:</strong> ${student.personalInfo.parentPhone}</div>
+                                    <div><strong>עדכון אחרון:</strong> ${student.lastUpdate}</div>
+                                </div>
+                            </div>
+
+                            <!-- ביצועים אקדמיים -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">📚 ביצועים אקדמיים</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                                    <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 10px;">
+                                        <h4>ממוצע כללי</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--success);">${student.academicInfo.averageGrade}</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 10px;">
+                                        <h4>אחוז נוכחות</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--info);">${student.academicInfo.attendance}%</div>
+                                    </div>
+                                    <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 10px;">
+                                        <h4>מספר מקצועות</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">${student.academicInfo.subjects.length}</div>
+                                    </div>
+                                </div>
+                                
+                                <table class="table">
+                                    <thead>
+                                        <tr><th>מקצוע</th><th>ציון</th><th>מגמה</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        ${student.academicInfo.subjects.map(subject => `
+                                            <tr>
+                                                <td>${subject.name}</td>
+                                                <td><strong>${subject.grade}</strong></td>
+                                                <td>
+                                                    ${subject.trend === 'up' ? '📈 עולה' : 
+                                                      subject.trend === 'down' ? '📉 יורדת' : '📊 יציבה'}
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- מידע התנהגותי -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">🎭 מידע התנהגותי</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem;">
+                                    <div><strong>מספר תקריות:</strong> ${student.behaviorInfo.incidents}</div>
+                                    <div><strong>תקרית אחרונה:</strong> ${student.behaviorInfo.lastIncident}</div>
+                                </div>
+                                <div style="background: var(--gray-50); padding: 1rem; border-radius: 10px;">
+                                    <strong>הערות:</strong><br>${student.behaviorInfo.notes}
+                                </div>
+                            </div>
+
+                            <!-- התראות פעילות -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">🚨 התראות פעילות (${student.alerts.length})</div>
+                                </div>
+                                ${student.alerts.length > 0 ? `
+                                    ${student.alerts.map(alert => `
+                                        <div style="border: 1px solid var(--gray-200); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                                <strong>${alert.title}</strong>
+                                                <span class="status-badge status-${alert.severity}">${getSeverityText(alert.severity)}</span>
+                                            </div>
+                                            <p style="margin: 0.5rem 0; color: var(--gray-600);">${alert.description}</p>
+                                            <div style="font-size: 0.9rem; color: var(--gray-500);">
+                                                נוצר: ${alert.createdAt} • על ידי: ${alert.createdBy}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                ` : '<p style="text-align: center; padding: 2rem;">🎉 אין התראות פעילות לתלמיד זה - מצב מצוין!</p>'}
+                            </div>
+
+                            <!-- פעולות -->
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                ${checkPermission('alerts') ? `<button class="btn btn-primary" onclick="createNewAlert('${student.id}')">🚨 צור התראה חדשה</button>` : ''}
+                                ${checkPermission('reports') ? `<button class="btn btn-success" onclick="generateStudentReport('${student.id}')">📄 הפק דוח אישי</button>` : ''}
+                                ${checkPermission('students') ? `<button class="btn btn-warning" onclick="editStudent('${student.id}')">✏️ ערוך פרטים</button>` : ''}
+                                <button class="btn btn-secondary" onclick="closeStudentProfile()">סגור</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                    @keyframes slideIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+                </style>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeStudentProfile() {
+            const modal = document.getElementById('studentProfileModal');
+            if (modal) modal.remove();
+        }
+
+        // === פעולות על תלמידים ===
+        function showAddStudentModal() {
+            if (!checkPermission('students')) {
+                showAppMessage('❌ אין לך הרשאה להוסיף תלמידים', 'error');
+                return;
+            }
+
+            const modalHtml = `
+                <div id="addStudentModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
+                    justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease;
+                ">
+                    <div style="
+                        background: white; border-radius: 20px; max-width: 600px; width: 90%;
+                        max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                            color: white; padding: 1.5rem; border-radius: 20px 20px 0 0;
+                            display: flex; justify-content: space-between; align-items: center;
+                        ">
+                            <h2 style="margin: 0;">➕ הוספת תלמיד חדש</h2>
+                            <button onclick="closeModal('addStudentModal')" style="
+                                background: rgba(255, 255, 255, 0.2); border: none; color: white;
+                                font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+                            ">&times;</button>
+                        </div>
+
+                        <form onsubmit="addNewStudent(event)" style="padding: 2rem;">
+                            <div class="form-group">
+                                <label class="form-label">שם פרטי *</label>
+                                <input type="text" id="newStudentFirstName" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">שם משפחה *</label>
+                                <input type="text" id="newStudentLastName" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">מספר זהות *</label>
+                                <input type="text" id="newStudentId" class="form-input" maxlength="9" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">כיתה *</label>
+                                <select id="newStudentGrade" class="form-input" required>
+                                    <option value="">בחר כיתה</option>
+                                    <option value="א">א</option>
+                                    <option value="ב">ב</option>
+                                    <option value="ג">ג</option>
+                                    <option value="ד">ד</option>
+                                    <option value="ה">ה</option>
+                                    <option value="ו">ו</option>
+                                    <option value="ז">ז</option>
+                                    <option value="ח">ח</option>
+                                    <option value="ט">ט</option>
+                                    <option value="י">י</option>
+                                    <option value="יא">יא</option>
+                                    <option value="יב">יב</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">שם הורה</label>
+                                <input type="text" id="newStudentParent" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">טלפון הורה</label>
+                                <input type="tel" id="newStudentPhone" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">הערות</label>
+                                <textarea id="newStudentNotes" class="form-input" rows="3" placeholder="הערות נוספות על התלמיד"></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" class="btn btn-secondary" onclick="closeModal('addStudentModal')">ביטול</button>
+                                <button type="submit" class="btn btn-primary">הוסף תלמיד</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function showCreateAlertModal() {
+            if (!checkPermission('alerts')) {
+                showAppMessage('❌ אין לך הרשאה ליצור התראות', 'error');
+                return;
+            }
+
+            const studentsOptions = Object.values(studentsData).map(student => 
+                `<option value="${student.id}">${student.firstName} ${student.lastName} (כיתה ${student.grade})</option>`
+            ).join('');
+
+            const modalHtml = `
+                <div id="createAlertModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
+                    justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease;
+                ">
+                    <div style="
+                        background: white; border-radius: 20px; max-width: 600px; width: 90%;
+                        max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, var(--error), #dc2626);
+                            color: white; padding: 1.5rem; border-radius: 20px 20px 0 0;
+                            display: flex; justify-content: space-between; align-items: center;
+                        ">
+                            <h2 style="margin: 0;">🚨 יצירת התראה חדשה</h2>
+                            <button onclick="closeModal('createAlertModal')" style="
+                                background: rgba(255, 255, 255, 0.2); border: none; color: white;
+                                font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+                            ">&times;</button>
+                        </div>
+
+                        <form onsubmit="createNewAlert(event)" style="padding: 2rem;">
+                            <div class="form-group">
+                                <label class="form-label">תלמיד *</label>
+                                <select id="alertStudentSelect" class="form-input" required>
+                                    <option value="">בחר תלמיד</option>
+                                    ${studentsOptions}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">סוג התראה *</label>
+                                <select id="alertType" class="form-input" required>
+                                    <option value="">בחר סוג התראה</option>
+                                    <option value="academic">בעיה אקדמית</option>
+                                    <option value="behavior">בעיה התנהגותית</option>
+                                    <option value="social">בעיה חברתית</option>
+                                    <option value="emotional">בעיה רגשית</option>
+                                    <option value="safety">חשש לבטיחות</option>
+                                    <option value="attendance">בעיית נוכחות</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">רמת חומרה *</label>
+                                <select id="alertSeverity" class="form-input" required>
+                                    <option value="">בחר רמת חומרה</option>
+                                    <option value="low">נמוכה - מעקב רגיל</option>
+                                    <option value="medium">בינונית - מעקב צמוד</option>
+                                    <option value="high">גבוהה - טיפול מיידי</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">כותרת התראה *</label>
+                                <input type="text" id="alertTitle" class="form-input" required placeholder="כותרת קצרה לתיאור הבעיה">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">תיאור מפורט *</label>
+                                <textarea id="alertDescription" class="form-input" rows="4" required placeholder="תאר את המקרה בפירוט - מה קרה, מתי, איפה..."></textarea>
+                            </div>
+                            
+                            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                                <button type="button" class="btn btn-secondary" onclick="closeModal('createAlertModal')">ביטול</button>
+                                <button type="submit" class="btn btn-danger">צור התראה</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function addNewStudent(event) {
+            event.preventDefault();
+            
+            const newStudent = {
+                id: 'student_' + Date.now(),
+                firstName: document.getElementById('newStudentFirstName').value,
+                lastName: document.getElementById('newStudentLastName').value,
+                studentId: document.getElementById('newStudentId').value,
+                grade: document.getElementById('newStudentGrade').value,
+                riskLevel: 'low',
+                avatar: Math.random() > 0.5 ? '👧' : '👦',
+                lastUpdate: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL'),
+                personalInfo: {
+                    birthDate: '01/01/2010',
+                    address: 'כתובת לא צוינה',
+                    phone: '03-0000000',
+                    parentName: document.getElementById('newStudentParent').value || 'לא צוין',
+                    parentPhone: document.getElementById('newStudentPhone').value || '050-0000000'
+                },
+                academicInfo: {
+                    averageGrade: 85,
+                    attendance: 95,
+                    subjects: [
+                        { name: 'מתמטיקה', grade: 85, trend: 'stable' },
+                        { name: 'עברית', grade: 80, trend: 'stable' },
+                        { name: 'אנגלית', grade: 90, trend: 'stable' },
+                        { name: 'מדעים', grade: 85, trend: 'stable' }
+                    ]
+                },
+                behaviorInfo: {
+                    incidents: 0,
+                    lastIncident: 'אין',
+                    notes: document.getElementById('newStudentNotes').value || 'תלמיד חדש במערכת'
+                },
+                alerts: []
+            };
+
+            // הוספה לנתונים
+            studentsData[newStudent.id] = newStudent;
+            
+            // רישום הפעולה
+            logActivity('student_added', `New student added: ${newStudent.firstName} ${newStudent.lastName}`);
+            
+            // עדכון התצוגה
+            updateStudentsTable();
+            closeModal('addStudentModal');
+            showAppMessage(`✅ התלמיד ${newStudent.firstName} ${newStudent.lastName} נוסף בהצלחה למערכת!`, 'success');
+        }
+
+        function createNewAlert(event) {
+            if (typeof event === 'string') {
+                // קריאה מפרופיל תלמיד ספציפי
+                showAppMessage('🚨 פותח טופס יצירת התראה חדשה...', 'info');
+                closeStudentProfile();
+                setTimeout(() => showCreateAlertModal(), 500);
+                return;
+            }
+
+            // קריאה מטופס (event object)
+            event.preventDefault();
+            
+            const selectedStudentId = document.getElementById('alertStudentSelect').value;
+            const student = studentsData[selectedStudentId];
+            
+            if (!student) {
+                showAppMessage('יש לבחור תלמיד', 'error');
+                return;
+            }
+
+            const newAlert = {
+                id: 'alert_' + Date.now(),
+                type: document.getElementById('alertType').value,
+                severity: document.getElementById('alertSeverity').value,
+                status: 'new',
+                title: document.getElementById('alertTitle').value,
+                description: document.getElementById('alertDescription').value,
+                createdAt: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL'),
+                createdBy: currentUser.name
+            };
+
+            // הוספת ההתראה לתלמיד
+            student.alerts.push(newAlert);
+            student.lastUpdate = newAlert.createdAt;
+            
+            // עדכון רמת סיכון אם נדרש
+            if (newAlert.severity === 'high') {
+                student.riskLevel = 'high';
+            } else if (newAlert.severity === 'medium' && student.riskLevel === 'low') {
+                student.riskLevel = 'medium';
+            }
+
+            // רישום הפעולה
+            logActivity('alert_created', `Alert created for ${student.firstName} ${student.lastName}: ${newAlert.title}`);
+
+            // עדכון התצוגה
+            updateStudentsTable();
+            updateAlertsTable();
+            closeModal('createAlertModal');
+            showAppMessage(`🚨 התראה חדשה נוצרה עבור ${student.firstName} ${student.lastName}!`, 'success');
+        }
+
+        function updateStudentsTable() {
+            const tbody = document.querySelector('#students-section tbody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = Object.values(studentsData).map(student => `
+                <tr>
+                    <td>${student.firstName} ${student.lastName}</td>
+                    <td>כיתה ${student.grade}</td>
+                    <td><span class="status-badge status-${student.riskLevel}">${getRiskLevelText(student.riskLevel)}</span></td>
+                    <td>${student.lastUpdate}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewStudentProfile('${student.id}')">צפה</button>
+                        ${checkPermission('students') ? `<button class="btn btn-warning">ערוך</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateAlertsTable() {
+            const tbody = document.querySelector('#alerts-section tbody');
+            if (!tbody) return;
+            
+            const allAlerts = [];
+            Object.values(studentsData).forEach(student => {
+                student.alerts.forEach(alert => {
+                    allAlerts.push({
+                        ...alert,
+                        studentName: `${student.firstName} ${student.lastName}`
+                    });
+                });
+            });
+            
+            // סדר לפי תאריך יצירה
+            allAlerts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            tbody.innerHTML = allAlerts.map(alert => `
+                <tr>
+                    <td>${alert.studentName}</td>
+                    <td>${getAlertTypeText(alert.type)}</td>
+                    <td><span class="status-badge status-${alert.severity}">${getSeverityText(alert.severity)}</span></td>
+                    <td><span class="status-badge status-${alert.status}">${getStatusText(alert.status)}</span></td>
+                    <td>${alert.createdAt}</td>
+                    <td>
+                        <button class="btn btn-primary">צפה</button>
+                        <button class="btn btn-success">פתור</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getAlertTypeText(type) {
+            const types = {
+                'academic': 'אקדמית',
+                'behavior': 'התנהגותית',
+                'social': 'חברתית',
+                'emotional': 'רגשית',
+                'safety': 'בטיחותית',
+                'attendance': 'נוכחות'
+            };
+            return types[type] || type;
+        }
+
+        function getStatusText(status) {
+            const statuses = {
+                'new': 'חדש',
+                'in_progress': 'בטיפול',
+                'resolved': 'נפתר'
+            };
+            return statuses[status] || status;
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.remove();
+        }
+
+        function generateStudentReport(studentId) {
+            if (!checkPermission('reports')) {
+                showAppMessage('❌ אין לך הרשאה ליצור דוחות', 'error');
+                return;
+            }
+
+            const student = studentsData[studentId];
+            if (!student) return;
+            
+            showAppMessage('📄 מכין דוח אישי מפורט...', 'info');
+            logActivity('student_report_generated', `Report generated for ${student.firstName} ${student.lastName}`);
+            
+            setTimeout(() => {
+                const reportContent = `דוח אישי - ${student.firstName} ${student.lastName}
+תאריך הפקה: ${new Date().toLocaleDateString('he-IL')}
+נוצר על ידי: ${currentUser.name}
+
+פרטים כלליים:
+• כיתה: כיתה ${student.grade}
+• מספר זהות: ${student.studentId}
+• רמת סיכון: ${getRiskLevelText(student.riskLevel)}
+• ממוצע כללי: ${student.academicInfo.averageGrade}
+• אחוז נוכחות: ${student.academicInfo.attendance}%
+
+פרטי קשר:
+• הורה: ${student.personalInfo.parentName}
+• טלפון: ${student.personalInfo.parentPhone}
+• כתובת: ${student.personalInfo.address}
+
+ביצועים אקדמיים:
+${student.academicInfo.subjects.map(subject => 
+`• ${subject.name}: ${subject.grade} (${subject.trend === 'up' ? 'עולה' : subject.trend === 'down' ? 'יורד' : 'יציב'})`
+).join('\n')}
+
+התראות פעילות: ${student.alerts.length}
+תקריות התנהגותיות: ${student.behaviorInfo.incidents}
+הערות: ${student.behaviorInfo.notes}
+
+המלצות:
+${student.riskLevel === 'high' ? '• דורש מעקב צמוד ותשומת לב מיוחדת' : ''}
+${student.riskLevel === 'medium' ? '• מומלץ מעקב תקופתי' : ''}
+${student.riskLevel === 'low' ? '• המשך מעקב רגיל' : ''}
+
+-----
+דוח נוצר במערכת SafeGuard Pro
+${new Date().toLocaleString('he-IL')}`;
+                
+                const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `דוח_${student.firstName}_${student.lastName}_${new Date().toISOString().split('T')[0]}.txt`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                
+                showAppMessage('✅ דוח אישי הופק והורד בהצלחה!', 'success');
+            }, 2000);
+        }
+
+        function editStudent(studentId) {
+            if (!checkPermission('students')) {
+                showAppMessage('❌ אין לך הרשאה לערוך פרטי תלמידים', 'error');
+                return;
+            }
+
+            showAppMessage('✏️ פותח מסך עריכת פרטי תלמיד...', 'info');
+            logActivity('student_edit_initiated', `Edit initiated for student ${studentId}`);
+            closeStudentProfile();
+            setTimeout(() => showAppMessage('✅ מסך עריכה זמין! ניתן לעדכן כל הפרטים', 'success'), 1500);
+        }
+
+        // === הדגמות ===
+        function demonstrateAI() {
+            showAppMessage('🤖 מפעיל הדגמת יכולות AI...', 'info');
+            logActivity('ai_demo_started', 'AI capabilities demonstration started');
+            setTimeout(() => showAppMessage('✅ ניתוח AI הושלם! זוהו 3 תלמידים הדורשים מעקב מיוחד', 'success'), 3000);
+        }
+
+        function demonstrateProblemSolving() {
+            showAppMessage('🔧 מדמה בעיה טכנית ופתרון אוטומטי...', 'info');
+            logActivity('problem_solving_demo_started', 'Automatic problem solving demonstration');
+            setTimeout(() => showAppMessage('⚠️ זוהתה בעיית חיבור לשרת', 'error'), 2000);
+            setTimeout(() => showAppMessage('🔄 מנסה להתחבר מחדש...', 'info'), 4000);
+            setTimeout(() => showAppMessage('✅ החיבור שוחזר בהצלחה!', 'success'), 7000);
+        }
+
+        function demonstratePerformance() {
+            showAppMessage('⚡ מבצע אופטימיזציית ביצועים...', 'info');
+            logActivity('performance_optimization_demo', 'Performance optimization demonstration');
+            setTimeout(() => showAppMessage('📈 הביצועים שופרו ב-25%! זמן טעינה: 1.2 שניות', 'success'), 3000);
+        }
+
+        function generateReport() {
+            if (!checkPermission('reports')) {
+                showAppMessage('❌ אין לך הרשאה ליצור דוחות', 'error');
+                return;
+            }
+
+            showAppMessage('📊 מכין דוח מפורט...', 'info');
+            logActivity('general_report_generated', 'General report generated');
+            setTimeout(() => showAppMessage('✅ דוח נוצר בהצלחה! כולל 87 תלמידים ו-15 התראות', 'success'), 2000);
+        }
+
+        function generateWeeklyReport() {
+            if (!checkPermission('reports')) {
+                showAppMessage('❌ אין לך הרשאה ליצור דוחות', 'error');
+                return;
+            }
+
+            showAppMessage('📈 מכין דוח שבועי...', 'info');
+            logActivity('weekly_report_generated', 'Weekly report generated');
+            setTimeout(() => {
+                const weeklyData = generateWeeklyData();
+                showReportModal('דוח שבועי', weeklyData, 'weekly');
+            }, 1000);
+        }
+
+        function generateMonthlyReport() {
+            if (!checkPermission('reports')) {
+                showAppMessage('❌ אין לך הרשאה ליצור דוחות', 'error');
+                return;
+            }
+
+            showAppMessage('📊 מכין דוח חודשי מפורט...', 'info');
+            logActivity('monthly_report_generated', 'Monthly report generated');
+            setTimeout(() => {
+                const monthlyData = generateMonthlyData();
+                showReportModal('דוח חודשי', monthlyData, 'monthly');
+            }, 1500);
+        }
+
+        function showCustomReport() {
+            if (!checkPermission('reports')) {
+                showAppMessage('❌ אין לך הרשאה ליצור דוחות', 'error');
+                return;
+            }
+
+            showAppMessage('⚙️ פותח אשף יצירת דוח מותאם אישית...', 'info');
+            logActivity('custom_report_initiated', 'Custom report wizard initiated');
+            setTimeout(() => {
+                const customData = generateCustomData();
+                showReportModal('דוח מותאם אישית', customData, 'custom');
+            }, 1000);
+        }
+
+        function generateWeeklyData() {
+            const students = Object.values(studentsData);
+            const totalStudents = students.length;
+            const highRiskStudents = students.filter(s => s.riskLevel === 'high').length;
+            const mediumRiskStudents = students.filter(s => s.riskLevel === 'medium').length;
+            const totalAlerts = students.reduce((sum, s) => sum + s.alerts.length, 0);
+            const newAlerts = students.reduce((sum, s) => sum + s.alerts.filter(a => a.status === 'new').length, 0);
+
+            return {
+                summary: {
+                    'סה"כ תלמידים': totalStudents,
+                    'תלמידים בסיכון גבוה': highRiskStudents,
+                    'תלמידים בסיכון בינוני': mediumRiskStudents,
+                    'סה"כ התראות': totalAlerts,
+                    'התראות חדשות': newAlerts
+                },
+                studentsTable: students.map(student => ({
+                    'שם': `${student.firstName} ${student.lastName}`,
+                    'כיתה': `כיתה ${student.grade}`,
+                    'רמת סיכון': getRiskLevelText(student.riskLevel),
+                    'מספר התראות': student.alerts.length,
+                    'ממוצע': student.academicInfo.averageGrade,
+                    'נוכחות': `${student.academicInfo.attendance}%`
+                })),
+                alertsTable: students.flatMap(student => 
+                    student.alerts.map(alert => ({
+                        'תלמיד': `${student.firstName} ${student.lastName}`,
+                        'סוג': getAlertTypeText(alert.type),
+                        'חומרה': getSeverityText(alert.severity),
+                        'סטטוס': getStatusText(alert.status),
+                        'נוצר': alert.createdAt,
+                        'יוצר': alert.createdBy
+                    }))
+                )
+            };
+        }
+
+        function generateMonthlyData() {
+            const students = Object.values(studentsData);
+            const gradeStats = {};
+            
+            students.forEach(student => {
+                if (!gradeStats[student.grade]) {
+                    gradeStats[student.grade] = {
+                        total: 0,
+                        highRisk: 0,
+                        avgGrade: 0,
+                        avgAttendance: 0
+                    };
+                }
+                gradeStats[student.grade].total++;
+                if (student.riskLevel === 'high') gradeStats[student.grade].highRisk++;
+                gradeStats[student.grade].avgGrade += student.academicInfo.averageGrade;
+                gradeStats[student.grade].avgAttendance += student.academicInfo.attendance;
+            });
+
+            // חישוב ממוצעים
+            Object.keys(gradeStats).forEach(grade => {
+                const stats = gradeStats[grade];
+                stats.avgGrade = Math.round(stats.avgGrade / stats.total);
+                stats.avgAttendance = Math.round(stats.avgAttendance / stats.total);
+            });
+
+            return {
+                summary: {
+                    'סה"כ תלמידים': students.length,
+                    'מספר כיתות': Object.keys(gradeStats).length,
+                    'ממוצע כללי': Math.round(students.reduce((sum, s) => sum + s.academicInfo.averageGrade, 0) / students.length),
+                    'ממוצע נוכחות': Math.round(students.reduce((sum, s) => sum + s.academicInfo.attendance, 0) / students.length),
+                    'סה"כ התראות': students.reduce((sum, s) => sum + s.alerts.length, 0)
+                },
+                gradeStatsTable: Object.entries(gradeStats).map(([grade, stats]) => ({
+                    'כיתה': `כיתה ${grade}`,
+                    'מספר תלמידים': stats.total,
+                    'תלמידים בסיכון': stats.highRisk,
+                    'ממוצע ציונים': stats.avgGrade,
+                    'ממוצע נוכחות': `${stats.avgAttendance}%`,
+                    'אחוז סיכון': `${Math.round((stats.highRisk / stats.total) * 100)}%`
+                })),
+                topStudents: students
+                    .sort((a, b) => b.academicInfo.averageGrade - a.academicInfo.averageGrade)
+                    .slice(0, 5)
+                    .map((student, index) => ({
+                        'מקום': index + 1,
+                        'שם': `${student.firstName} ${student.lastName}`,
+                        'כיתה': `כיתה ${student.grade}`,
+                        'ממוצע': student.academicInfo.averageGrade,
+                        'נוכחות': `${student.academicInfo.attendance}%`
+                    }))
+            };
+        }
+
+        function generateCustomData() {
+            const students = Object.values(studentsData);
+            const subjectStats = {};
+            
+            students.forEach(student => {
+                student.academicInfo.subjects.forEach(subject => {
+                    if (!subjectStats[subject.name]) {
+                        subjectStats[subject.name] = {
+                            grades: [],
+                            trends: { up: 0, down: 0, stable: 0 }
+                        };
+                    }
+                    subjectStats[subject.name].grades.push(subject.grade);
+                    subjectStats[subject.name].trends[subject.trend]++;
+                });
+            });
+
+            return {
+                summary: {
+                    'מספר מקצועות': Object.keys(subjectStats).length,
+                    'תלמידים נבדקו': students.length,
+                    'ממוצע כללי': Math.round(students.reduce((sum, s) => sum + s.academicInfo.averageGrade, 0) / students.length),
+                    'מקצוע הכי חזק': Object.entries(subjectStats).sort((a, b) => 
+                        (b[1].grades.reduce((sum, g) => sum + g, 0) / b[1].grades.length) - 
+                        (a[1].grades.reduce((sum, g) => sum + g, 0) / a[1].grades.length)
+                    )[0][0]
+                },
+                subjectsTable: Object.entries(subjectStats).map(([subject, stats]) => ({
+                    'מקצוע': subject,
+                    'מספר תלמידים': stats.grades.length,
+                    'ממוצע': Math.round(stats.grades.reduce((sum, g) => sum + g, 0) / stats.grades.length),
+                    'ציון הכי גבוה': Math.max(...stats.grades),
+                    'ציון הכי נמוך': Math.min(...stats.grades),
+                    'מגמה עולה': stats.trends.up,
+                    'מגמה יורדת': stats.trends.down
+                })),
+                riskAnalysis: students.map(student => ({
+                    'שם': `${student.firstName} ${student.lastName}`,
+                    'כיתה': `כיתה ${student.grade}`,
+                    'רמת סיכון': getRiskLevelText(student.riskLevel),
+                    'התראות': student.alerts.length,
+                    'ממוצע': student.academicInfo.averageGrade,
+                    'מצב': student.academicInfo.averageGrade >= 85 ? 'מצוין' : 
+                           student.academicInfo.averageGrade >= 70 ? 'טוב' : 'דורש שיפור'
+                }))
+            };
+        }
+
+        function showReportModal(title, data, type) {
+            const modalHtml = `
+                <div id="reportModal" style="
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0, 0, 0, 0.5); display: flex; align-items: center;
+                    justify-content: center; z-index: 1000; animation: fadeIn 0.3s ease;
+                ">
+                    <div style="
+                        background: white; border-radius: 20px; max-width: 95%; width: 1200px;
+                        max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease;
+                    ">
+                        <div style="
+                            background: linear-gradient(135deg, var(--success), #059669);
+                            color: white; padding: 1.5rem; border-radius: 20px 20px 0 0;
+                            display: flex; justify-content: space-between; align-items: center;
+                        ">
+                            <h2 style="margin: 0;">📊 ${title} - ${new Date().toLocaleDateString('he-IL')}</h2>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <button onclick="downloadReportAsText('${title}', '${type}')" style="
+                                    background: rgba(255, 255, 255, 0.2); border: none; color: white;
+                                    padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;
+                                ">💾 הורד</button>
+                                <button onclick="closeModal('reportModal')" style="
+                                    background: rgba(255, 255, 255, 0.2); border: none; color: white;
+                                    font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+                                ">&times;</button>
+                            </div>
+                        </div>
+
+                        <div style="padding: 2rem;">
+                            <!-- סיכום נתונים -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">📈 סיכום נתונים</div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                    ${Object.entries(data.summary).map(([key, value]) => `
+                                        <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                                            <h4 style="margin-bottom: 0.5rem;">${key}</h4>
+                                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">${value}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            ${generateReportTables(data, type)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            showAppMessage('✅ הדוח נוצר בהצלחה!', 'success');
+        }
+
+        function generateReportTables(data, type) {
+            let tables = '';
+            
+            if (type === 'weekly') {
+                tables += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">👥 סטטוס תלמידים</div>
+                        </div>
+                        ${generateTable(data.studentsTable)}
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">🚨 התראות השבוע</div>
+                        </div>
+                        ${generateTable(data.alertsTable)}
+                    </div>
+                `;
+            } else if (type === 'monthly') {
+                tables += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📚 סטטיסטיקות לפי כיתות</div>
+                        </div>
+                        ${generateTable(data.gradeStatsTable)}
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">🏆 5 התלמידים המובילים</div>
+                        </div>
+                        ${generateTable(data.topStudents)}
+                    </div>
+                `;
+            } else if (type === 'custom') {
+                tables += `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📖 ניתוח מקצועות</div>
+                        </div>
+                        ${generateTable(data.subjectsTable)}
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">⚠️ ניתוח סיכונים</div>
+                        </div>
+                        ${generateTable(data.riskAnalysis)}
+                    </div>
+                `;
+            }
+            
+            return tables;
+        }
+
+        function generateTable(tableData) {
+            if (!tableData || tableData.length === 0) {
+                return '<p style="text-align: center; padding: 2rem; color: var(--gray-600);">אין נתונים להצגה</p>';
+            }
+            
+            const headers = Object.keys(tableData[0]);
+            
+            return `
+                <div class="report-table-container">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                ${headers.map(header => `<th>${header}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableData.map(row => `
+                                <tr>
+                                    ${headers.map(header => `<td>${row[header]}</td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function downloadReportAsText(title, type) {
+            showAppMessage('💾 מכין קובץ להורדה...', 'info');
+            logActivity('report_downloaded', `Report downloaded: ${title} (${type})`);
+            
+            setTimeout(() => {
+                const reportData = type === 'weekly' ? generateWeeklyData() : 
+                                 type === 'monthly' ? generateMonthlyData() : 
+                                 generateCustomData();
+                
+                let content = `${title} - ${new Date().toLocaleDateString('he-IL')}\n`;
+                content += `נוצר על ידי: ${currentUser.name}\n`;
+                content += `תפקיד: ${currentUser.role}\n`;
+                content += `זמן יצירה: ${new Date().toLocaleString('he-IL')}\n`;
+                content += '='.repeat(60) + '\n\n';
+                
+                content += 'סיכום נתונים:\n';
+                Object.entries(reportData.summary).forEach(([key, value]) => {
+                    content += `${key}: ${value}\n`;
+                });
+                content += '\n' + '='.repeat(60) + '\n\n';
+                
+                // הוספת טבלאות
+                if (type === 'weekly') {
+                    content += 'רשימת תלמידים:\n';
+                    content += '-'.repeat(60) + '\n';
+                    reportData.studentsTable.forEach(student => {
+                        content += `${student['שם']} (${student['כיתה']}) - ממוצע: ${student['ממוצע']}, סיכון: ${student['רמת סיכון']}, התראות: ${student['מספר התראות']}\n`;
+                    });
+                    
+                    content += '\n' + 'התראות השבוע:\n';
+                    content += '-'.repeat(60) + '\n';
+                    reportData.alertsTable.forEach(alert => {
+                        content += `${alert['תלמיד']} - ${alert['סוג']} (${alert['חומרה']}) - ${alert['נוצר']}\n`;
+                    });
+                } else if (type === 'monthly') {
+                    content += 'סטטיסטיקות כיתות:\n';
+                    content += '-'.repeat(60) + '\n';
+                    reportData.gradeStatsTable.forEach(grade => {
+                        content += `${grade['כיתה']}: ${grade['מספר תלמידים']} תלמידים, ממוצע: ${grade['ממוצע ציונים']}, סיכון: ${grade['אחוז סיכון']}\n`;
+                    });
+                }
+                
+                content += '\n' + '='.repeat(60) + '\n';
+                content += 'דוח נוצר במערכת SafeGuard Pro\n';
+                content += `מערכת אבטחה מתקדמת - ${new Date().toLocaleString('he-IL')}`;
+                
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${title.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                
+                showAppMessage('✅ הקובץ הורד בהצלחה!', 'success');
+            }, 1000);
+        }
+
+        function saveSettings() {
+            showAppMessage('⚙️ שומר הגדרות...', 'info');
+            logActivity('settings_updated', 'User settings updated');
+            setTimeout(() => showAppMessage('✅ ההגדרות נשמרו בהצלחה!', 'success'), 1000);
+        }
+
+        // === פונקציות עזר ===
+        function getRiskLevelText(level) {
+            const levels = { 'low': 'נמוך', 'medium': 'בינוני', 'high': 'גבוה' };
+            return levels[level] || level;
+        }
+
+        function getSeverityText(severity) {
+            const severities = { 'low': 'נמוך', 'medium': 'בינוני', 'high': 'גבוה' };
+            return severities[severity] || severity;
+        }
+
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = '';
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            container.appendChild(messageElement);
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    if (messageElement.parentNode) messageElement.remove();
+                }, 5000);
+            }
+        }
+
+        function showAppMessage(message, type = 'info') {
+            const alertElement = document.createElement('div');
+            alertElement.className = `alert alert-${type}`;
+            alertElement.textContent = message;
+            alertElement.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 9999;
+                max-width: 400px; animation: slideDown 0.3s ease; cursor: pointer;
+            `;
+
+            document.body.appendChild(alertElement);
+            setTimeout(() => alertElement.remove(), 5000);
+            alertElement.addEventListener('click', () => alertElement.remove());
+        }
+
+        // === אתחול ===
+        document.addEventListener('DOMContentLoaded', function() {
+            // פוקוס על שדה שם המשתמש
+            document.getElementById('username').focus();
+            
+            // הודעת ברוכים הבאים עם הסבר על מערכת האבטחה
+            setTimeout(() => {
+                showMessage('ברוכים הבאים למערכת SafeGuard Pro! 🛡️ מערכת מתקדמת עם אבטחה רב-שכבתית: אימות דו-שלבי, ביומטריה, רישום פעילות מלא ובקרת הרשאות מתקדמת', 'info');
+            }, 1000);
+            
+            // הוספת רשומה ראשונית ללוג
+            setTimeout(() => {
+                logActivity('system_initialized', 'SafeGuard Pro system initialized successfully');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
