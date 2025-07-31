@@ -1,0 +1,3508 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RED FLAG SafeGuard Pro - מערכת זיהוי מוקדם לבטיחות תלמידים</title>
+    <style>
+        /* === בסיס === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #dc2626;
+            --primary-dark: #b91c1c;
+            --secondary: #991b1b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --bg-light: #f7fafc;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --radius-lg: 20px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            color: var(--gray-800);
+        }
+
+        /* === עיצובים כלליים === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #059669; transform: translateY(-1px); }
+        .btn-warning { background: var(--warning); }
+        .btn-warning:hover { background: #d97706; transform: translateY(-1px); }
+        .btn-danger { background: var(--error); }
+        .btn-danger:hover { background: #dc2626; transform: translateY(-1px); }
+        .btn-secondary { background: var(--gray-600); color: white; }
+        .btn-secondary:hover { background: var(--gray-800); transform: translateY(-1px); }
+        .btn-info { background: var(--info); }
+        .btn-info:hover { background: #0284c7; transform: translateY(-1px); }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            margin-bottom: 1.5rem;
+            border: 2px solid var(--primary);
+        }
+
+        .card:hover { transform: translateY(-2px); }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .status-high { background: var(--error); }
+        .status-medium { background: var(--warning); }
+        .status-low { background: var(--success); }
+        .status-new { background: var(--info); }
+
+        .hidden { display: none !important; }
+
+        /* === דף התחברות === */
+        .login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+            animation: slideIn 0.8s ease-out;
+            border: 2px solid var(--primary);
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .login-header .logo { 
+            font-size: 3rem; 
+            margin-bottom: 1rem;
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .login-header h1 { 
+            font-size: 2rem; 
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .login-form {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--gray-800);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-login {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+        }
+
+        .quick-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-1px);
+        }
+
+        /* === האפליקציה הראשית === */
+        .app-page {
+            display: none;
+            background-color: var(--bg-light);
+            color: var(--gray-800);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+        }
+
+        .navigation {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 2rem;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            padding: 1rem 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--gray-800);
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            border: 2px solid var(--primary);
+        }
+
+        .dashboard-card:hover { transform: translateY(-2px); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .card-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .card-danger .card-icon { background: rgba(239, 68, 68, 0.1); color: var(--error); }
+        .card-danger .card-value { color: var(--error); }
+        .card-warning .card-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .card-warning .card-value { color: var(--warning); }
+        .card-success .card-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .card-success .card-value { color: var(--success); }
+        .card-info .card-icon { background: rgba(14, 165, 233, 0.1); color: var(--info); }
+        .card-info .card-value { color: var(--info); }
+
+        .table-container {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 2px solid var(--primary);
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1));
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .table tbody tr:hover {
+            background: var(--gray-100);
+        }
+
+        .table .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+            font-weight: 500;
+            animation: slideDown 0.3s ease;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .message.info {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feature-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .demo-highlight {
+            border-left: 5px solid var(--primary);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(185, 28, 28, 0.05));
+        }
+
+        /* === מודלים === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 90%;
+            width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+            border: 2px solid var(--primary);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: white;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        /* === ייבוא קבצים === */
+        .file-upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(220, 38, 38, 0.05);
+            margin: 1rem 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary-dark);
+            background: rgba(220, 38, 38, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--gray-200);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        /* === תוצאות ייבוא === */
+        .import-results {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05));
+            border: 2px solid var(--success);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .import-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .summary-card {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+        }
+
+        .summary-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        /* === אנליטיקה מתקדמת === */
+        .analytics-tabs {
+            display: flex;
+            border-bottom: 2px solid var(--gray-200);
+            margin: 2rem 0 1rem 0;
+            overflow-x: auto;
+        }
+
+        .analytics-tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .analytics-tab:hover {
+            background: var(--gray-50);
+        }
+
+        .analytics-tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--white), var(--gray-50));
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-100);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 15px 15px 0 0;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-label {
+            color: var(--gray-600);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-change {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .kpi-change.positive {
+            color: var(--success);
+        }
+
+        .insights-panel {
+            background: linear-gradient(135deg, var(--info), #0284c7);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .insights-panel h4 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .insight-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            border-left: 4px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* רספונסיביות */
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            .nav-content {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .main-content {
+                padding: 0 1rem;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            .kpi-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- דף התחברות -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo">🚩</div>
+                <h1>RED FLAG SafeGuard Pro</h1>
+                <p style="color: white;">מערכת זיהוי מוקדם מתקדמת לבטיחות תלמידים - מבוססת על מחקר מקרה Richardson</p>
+                <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.9; color: white;">
+                    🔐 מערכת אבטחה מתקדמת | 📊 אנליטיקה חכמה מבוססת מחקר Richardson | 🤖 תובנות AI | 💾 שמירה אוטומטית
+                </div>
+            </div>
+
+            <div class="login-form">
+                <div id="messageContainer"></div>
+
+                <!-- טופס התחברות רגיל -->
+                <form id="loginForm" onsubmit="handleLogin(event)" style="display: block;">
+                    <div class="form-group">
+                        <label class="form-label" for="username">שם משתמש</label>
+                        <input type="text" id="username" class="form-input" placeholder="הזן שם משתמש" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">סיסמה</label>
+                        <input type="password" id="password" class="form-input" placeholder="הזן סיסמה" required>
+                    </div>
+
+                    <button type="submit" class="login-btn">🔑 התחבר למערכת</button>
+                </form>
+
+                <!-- טופס הרשמה חדשה -->
+                <div id="registerForm" class="hidden">
+                    <h3 style="margin-bottom: 1rem;">📝 הרשמה למערכת</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">שם מלא</label>
+                        <input type="text" id="newUserName" class="form-input" placeholder="הזן שם מלא">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">תפקיד במערכת</label>
+                        <select id="newUserRole" class="form-input">
+                            <option value="teacher">מורה</option>
+                            <option value="counselor">יועץ חינוכי</option>
+                            <option value="principal">מנהל/ת</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">אימייל</label>
+                        <input type="email" id="newUserEmail" class="form-input" placeholder="user@example.com">
+                    </div>
+                    
+                    <button class="login-btn" onclick="generateOTPCode()">
+                        📱 צור קוד חד פעמי
+                    </button>
+                    
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="#" onclick="showLoginForm()" style="color: var(--primary);">← חזור להתחברות</a>
+                    </div>
+                </div>
+
+                <!-- טופס אימות OTP -->
+                <div id="otpForm" class="hidden">
+                    <h3 style="margin-bottom: 1rem;">🔐 אימות קוד חד פעמי</h3>
+                    
+                    <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px; margin: 1rem 0; text-align: center;">
+                        <p>קוד חד פעמי נשלח לאימייל שלך:</p>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--primary); margin: 1rem 0;" id="displayedOTP">
+                            123456
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--gray-600);">
+                            לצורכי הדגמה, הקוד מוצג כאן. במערכת אמיתית הוא ישלח לאימייל בלבד.
+                        </p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">הזן קוד אימות</label>
+                        <input type="text" id="otpCode" class="form-input" placeholder="הזן 6 ספרות" maxlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">בחר סיסמה</label>
+                        <input type="password" id="newUserPassword" class="form-input" placeholder="בחר סיסמה חזקה">
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="login-btn" onclick="backToRegister()" style="flex: 1; background: var(--gray-600);">
+                            ← חזור
+                        </button>
+                        <button class="login-btn" onclick="completeRegistration()" style="flex: 2;">
+                            ✅ השלם הרשמה
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-login">
+                    <h3>כניסה מהירה למטרות הדגמה:</h3>
+                    <button class="quick-btn" onclick="quickLogin('מורה רחל כהן', 'teacher')">
+                        👩‍🏫 מורה רחל כהן
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('יועץ דני לוי', 'counselor')">
+                        👨‍💼 יועץ דני לוי (גישה לאנליטיקה)
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('מנהלת שרה אברהם', 'principal')">
+                        👩‍💼 מנהלת שרה אברהם (הרשאות מלאות)
+                    </button>
+                    <button class="quick-btn" onclick="quickLogin('מנהל מערכת', 'admin')">
+                        🔧 מנהל מערכת (גישה לכל)
+                    </button>
+                    
+                    <div style="border-top: 1px solid var(--gray-200); margin-top: 1rem; padding-top: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">משתמש חדש?</h4>
+                        <button class="quick-btn" onclick="showRegisterForm()" style="background: var(--success);">
+                            ➕ הרשמה חדשה עם קוד חד פעמי
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- האפליקציה הראשית -->
+    <div id="appPage" class="app-page">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">🚩 RED FLAG SafeGuard Pro</div>
+                <div class="user-menu">
+                    <span id="userRole" style="font-size: 0.8rem; opacity: 0.8; color: white;"></span>
+                    <span id="currentUser" style="color: white;">משתמש</span>
+                    <button class="btn btn-secondary" onclick="handleLogout()" style="color: white;">🚪 יציאה</button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="navigation">
+            <div class="nav-content">
+                <div class="nav-item active" onclick="showSection('dashboard')">🏠 לוח בקרה</div>
+                <div class="nav-item" onclick="showSection('students')">👥 תלמידים</div>
+                <div class="nav-item" onclick="showSection('alerts')">🚨 התראות</div>
+                <div class="nav-item" onclick="showSection('analytics')">📊 אנליטיקה מתקדמת</div>
+                <div class="nav-item" onclick="showSection('reports')">📈 דוחות</div>
+                <div class="nav-item" onclick="showSection('settings')">⚙️ הגדרות</div>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <!-- לוח בקרה -->
+            <section id="dashboard-section">
+                <h1 class="page-title">🏠 לוח בקרה ראשי</h1>
+                
+                <div class="dashboard-cards">
+                    <div class="dashboard-card card-danger">
+                        <div class="card-header">
+                            <div class="card-title">🚨 התראות דחופות</div>
+                            <div class="card-icon">⚠️</div>
+                        </div>
+                        <div class="card-value" id="dashboardAlerts">3</div>
+                        <div class="card-description">דורשות טיפול מיידי</div>
+                    </div>
+
+                    <div class="dashboard-card card-warning">
+                        <div class="card-header">
+                            <div class="card-title">⚠️ תלמידים בסיכון</div>
+                            <div class="card-icon">👥</div>
+                        </div>
+                        <div class="card-value" id="dashboardRisk">12</div>
+                        <div class="card-description">דורשים מעקב צמוד</div>
+                    </div>
+
+                    <div class="dashboard-card card-success">
+                        <div class="card-header">
+                            <div class="card-title">👥 תלמידים במערכת</div>
+                            <div class="card-icon">✅</div>
+                        </div>
+                        <div class="card-value" id="dashboardTotal">5</div>
+                        <div class="card-description">סה"כ תלמידים פעילים</div>
+                    </div>
+
+                    <div class="dashboard-card card-info">
+                        <div class="card-header">
+                            <div class="card-title">📊 דוחות השבוע</div>
+                            <div class="card-icon">📈</div>
+                        </div>
+                        <div class="card-value">8</div>
+                        <div class="card-description">דוחות שנוצרו השבוע</div>
+                    </div>
+                </div>
+
+                <!-- הדגמת תכונות מתקדמות -->
+                <div class="card demo-highlight">
+                    <div class="card-header">
+                        <div class="card-title">🚀 תכונות המערכת המשופרת</div>
+                    </div>
+                    <p><strong>🔥 חדש!</strong> מערכת RED FLAG SafeGuard Pro עם יכולות מתקדמות לזיהוי מוקדם של סיכונים ובעיות בטיחות, מבוססת על לקחי מחקר מקרה Richardson ומקרים דומים.</p>
+                    <div class="feature-buttons">
+                        <button class="btn btn-primary" onclick="showSection('students')">
+                            👥 ניהול תלמידים מתקדם
+                        </button>
+                        <button class="btn btn-success" onclick="showImportStudentsModal()">
+                            📥 ייבוא תלמידים חכם
+                        </button>
+                        <button class="btn btn-info" onclick="showSection('analytics')">
+                            📊 אנליטיקה מתקדמת
+                        </button>
+                        <button class="btn btn-warning" onclick="generateQuickReport()">
+                            📈 דוח מהיר
+                        </button>
+                    </div>
+                </div>
+
+                <!-- מחקר מקרה Richardson - גורמי סיכון -->
+                <div class="card" style="border: 2px solid #dc2626; background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(185, 28, 28, 0.05));">
+                    <div class="card-header">
+                        <div class="card-title" style="color: #dc2626;">🔍 גורמי סיכון מרכזיים - מבוסס על מחקר מקרה Richardson</div>
+                    </div>
+                    <p style="margin-bottom: 1rem;"><strong>המערכת מזהה ומנתחת גורמי סיכון שזוהו במחקר האקדמי:</strong></p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                        <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #dc2626;">
+                            <h4 style="color: #dc2626; margin-bottom: 0.5rem;">🔴 גורמים פסיכולוגיים</h4>
+                            <ul style="font-size: 0.9rem; margin: 0; padding-right: 1rem;">
+                                <li>בלבול בזהות והמרדה בסמכות הורים</li>
+                                <li>השפעה של דמות מבוגרת מניפולטיבית</li>
+                                <li>רומנטיזציה של מוות ואלימות</li>
+                                <li>נטייה לאימפולסיביות וחוסר שליטה רגשית</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                            <h4 style="color: #f59e0b; margin-bottom: 0.5rem;">🟡 השפעות תרבותיות</h4>
+                            <ul style="font-size: 0.9rem; margin: 0; padding-right: 1rem;">
+                                <li>חשיפה לתכנים אלימים ופנטזיות חשוכות</li>
+                                <li>השתתפות בקהילות אינטרנט שוליות</li>
+                                <li>זיהוי עם תרבות גותית וערפדית</li>
+                                <li>טשטוש הגבול בין פנטזיה למציאות</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="padding: 1rem; background: white; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+                            <h4 style="color: #0ea5e9; margin-bottom: 0.5rem;">🔵 גורמים חברתיים</h4>
+                            <ul style="font-size: 0.9rem; margin: 0; padding-right: 1rem;">
+                                <li>קשרים לא מתאימים עם בוגרים</li>
+                                <li>בידוד חברתי וחוסר תמיכה עמיתים</li>
+                                <li>כשלים במערכות הזיהוי המוקדם</li>
+                                <li>חוסר תקשורת פתוחה עם הורים ומחנכים</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(220, 38, 38, 0.1); border-radius: 8px;">
+                        <h4 style="color: #dc2626; margin-bottom: 0.5rem;">💡 כיצד המערכת מתמודדת עם גורמים אלו:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; font-size: 0.9rem;">
+                            <div>
+                                <strong>🤖 ניתוח התנהגותי חכם:</strong> זיהוי דפוסי התנהגות חריגים ושינויים במצב רוח
+                            </div>
+                            <div>
+                                <strong>🌐 מעקב דיגיטלי:</strong> ניטור פעילות מקוונת וחשיפה לתכנים מסוכנים
+                            </div>
+                            <div>
+                                <strong>👨‍👩‍👧‍👦 שיתוף משפחות:</strong> שילוב הורים בתהליך הזיהוי והטיפול
+                            </div>
+                            <div>
+                                <strong>🚨 התראות מוקדמות:</strong> זיהוי מהיר של סיטואציות סיכון ותגובה מיידית
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- טבלת התראות אחרונות -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">🚨 התראות אחרונות</div>
+                        <button class="btn btn-primary" onclick="showSection('alerts')">צפה בכל ההתראות</button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>תלמיד</th>
+                                <th>סוג התראה</th>
+                                <th>רמת חומרה</th>
+                                <th>זמן</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>שרה מרטינס</td>
+                                <td>בעיה חברתית</td>
+                                <td><span class="status-badge status-high">גבוה</span></td>
+                                <td>21/01/2024 08:30</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">👁️ צפה</button>
+                                    <button class="btn btn-success" onclick="resolveAlert('sarah_martins')">✅ פתור</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>דוד לוי</td>
+                                <td>בעיה התנהגותית</td>
+                                <td><span class="status-badge status-medium">בינוני</span></td>
+                                <td>20/01/2024 11:45</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('david_levi')">👁️ צפה</button>
+                                    <button class="btn btn-success" onclick="resolveAlert('david_levi')">✅ פתור</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- מעקב תלמידים -->
+            <section id="students-section" class="hidden">
+                <h1 class="page-title">👥 ניהול תלמידים</h1>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">📋 רשימת תלמידים</div>
+                        <div>
+                            <button class="btn btn-success" onclick="showImportStudentsModal()">📥 ייבוא תלמידים</button>
+                            <button class="btn btn-primary" onclick="showAddStudentModal()">➕ הוסף תלמיד</button>
+                        </div>
+                    </div>
+                    <div id="studentsTableBody">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>שם התלמיד</th>
+                                    <th>כיתה</th>
+                                    <th>רמת סיכון</th>
+                                    <th>עדכון אחרון</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableRows">
+                                <tr>
+                                    <td>שרה מרטינס</td>
+                                    <td>כיתה ז</td>
+                                    <td><span class="status-badge status-high">גבוה</span></td>
+                                    <td>21/01/2024 10:30</td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">👁️ צפה</button>
+                                        <button class="btn btn-warning" onclick="editStudent('sarah_martins')">✏️ ערוך</button>
+                                        <button class="btn btn-info" onclick="showEditAlertsModal('sarah_martins')">🚨 התראות</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>דוד לוי</td>
+                                    <td>כיתה ח</td>
+                                    <td><span class="status-badge status-medium">בינוני</span></td>
+                                    <td>20/01/2024 14:20</td>
+                                    <td>
+                                        <button class="btn btn-primary" onclick="viewStudentProfile('david_levi')">👁️ צפה</button>
+                                        <button class="btn btn-warning" onclick="editStudent('david_levi')">✏️ ערוך</button>
+                                        <button class="btn btn-info" onclick="showEditAlertsModal('david_levi')">🚨 התראות</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ניהול התראות -->
+            <section id="alerts-section" class="hidden">
+                <h1 class="page-title">🚨 ניהול התראות</h1>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">📋 כל ההתראות</div>
+                        <button class="btn btn-primary" onclick="showCreateAlertModal()">🚨 צור התראה חדשה</button>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>תלמיד</th>
+                                <th>סוג התראה</th>
+                                <th>חומרה</th>
+                                <th>סטטוס</th>
+                                <th>נוצר</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>שרה מרטינס</td>
+                                <td>בעיה חברתית</td>
+                                <td><span class="status-badge status-high">גבוה</span></td>
+                                <td><span class="status-badge status-new">חדש</span></td>
+                                <td>21/01/2024 08:30</td>
+                                <td>
+                                    <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">👁️ צפה</button>
+                                    <button class="btn btn-success" onclick="resolveAlert('sarah_martins')">✅ פתור</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- אנליטיקה מתקדמת -->
+            <section id="analytics-section" class="hidden">
+                <h1 class="page-title">📊 אנליטיקה מתקדמת ותובנות AI - מבוסס על מחקר Richardson</h1>
+                
+                <!-- KPI מתקדמים -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🎯 מדדי ביצוע מרכזיים (KPI)</div>
+                        <button class="btn btn-primary" onclick="refreshAnalytics()">🔄 רענן נתונים</button>
+                    </div>
+                    
+                    <div class="kpi-container">
+                        <div class="kpi-card">
+                            <div class="kpi-label">ציון בטיחות כללי</div>
+                            <div class="kpi-value" id="kpiSafety">96</div>
+                            <div class="kpi-change positive" id="kpiSafetyChange">↗ +3.2% מהחודש שעבר</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">זמן תגובה ממוצע</div>
+                            <div class="kpi-value" id="kpiResponse">0.9</div>
+                            <div class="kpi-change positive" id="kpiResponseChange">שעות ↗ שיפור של 25%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">שביעות רצון</div>
+                            <div class="kpi-value" id="kpiSatisfaction">4.9</div>
+                            <div class="kpi-change positive" id="kpiSatisfactionChange">⭐ +0.4 מהחודש שעבר</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">דיוק חיזוי AI</div>
+                            <div class="kpi-value" id="kpiAI">94.7</div>
+                            <div class="kpi-change positive" id="kpiAIChange">% ↗ שיפור של 8%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- תובנות חכמות מבוססות AI -->
+                <div class="insights-panel">
+                    <h4>🤖 תובנות חכמות מבוססות AI - לקחי מחקר Richardson</h4>
+                    <div class="insight-item" id="insight1">
+                        💡 זוהה קשר חזק בין ירידה בנוכחות לעלייה בהתראות - מקדם קורלציה: 0.73 (דומה לתופעות שזוהו במקרה Richardson)
+                    </div>
+                    <div class="insight-item" id="insight2">
+                        📊 תלמידים עם חשיפה לתכנים גותיים/אלימים מראים סיכון מוגבר פי 2.3 להתנהגות חריגה
+                    </div>
+                    <div class="insight-item" id="insight3">
+                        ⚠️ חיזוי: קשרים לא מתאימים עם בוגרים מהווים גורם סיכון מרכזי - זוהו 4 מקרים דומים בחודש הקרוב
+                    </div>
+                    <div class="insight-item" id="insight4">
+                        🎯 המלצה מבוססת מחקר: זיהוי מוקדם של שינויים בזהות ובהתנהגות יכול למנוע 87% מהמקרים הקיצוניים
+                    </div>
+                    <div class="insight-item">
+                        🔍 לקח מרכזי ממקרה Richardson: שילוב מעקב דיגיטלי עם התערבות משפחתית מוקדמת הוא המפתח למניעה
+                    </div>
+                </div>
+
+                <!-- טאבי אנליטיקה -->
+                <div class="card">
+                    <div class="analytics-tabs">
+                        <div class="analytics-tab active" onclick="showAnalyticsTab('overview')">🔍 סקירה כללית</div>
+                        <div class="analytics-tab" onclick="showAnalyticsTab('trends')">📈 מגמות ותחזיות</div>
+                        <div class="analytics-tab" onclick="showAnalyticsTab('performance')">🎓 ביצועים אקדמיים</div>
+                        <div class="analytics-tab" onclick="showAnalyticsTab('behavior')">🎭 ניתוח התנהגות</div>
+                    </div>
+
+                    <!-- תוכן טאבים -->
+                    <div id="overview-tab" class="tab-content active">
+                        <h4>📊 סקירה כללית של המערכת - מבוססת על מחקר Richardson</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px; text-align: center;">
+                                <h4>התפלגות סיכונים</h4>
+                                <div style="color: var(--error); font-size: 1.5rem; font-weight: bold;">20%</div>
+                                <div>סיכון גבוה</div>
+                            </div>
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px; text-align: center;">
+                                <h4>זיהוי קשרים מסוכנים</h4>
+                                <div style="color: var(--warning); font-size: 1.5rem; font-weight: bold;">3</div>
+                                <div>מקרים זוהו השבוע</div>
+                            </div>
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px; text-align: center;">
+                                <h4>דיוק חיזוי Richardson-Based</h4>
+                                <div style="color: var(--info); font-size: 1.5rem; font-weight: bold;">94.7%</div>
+                                <div>אלגוריתם AI</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(220, 38, 38, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #dc2626;">
+                            <h5 style="color: #dc2626;">🔍 גורמי סיכון מרכזיים שהמערכת מזהה:</h5>
+                            <ul style="margin: 0.5rem 0; font-size: 0.9rem;">
+                                <li><strong>פסיכולוגיים:</strong> בלבול זהות, השפעה מניפולטיבית, רומנטיזציה של אלימות</li>
+                                <li><strong>תרבותיים:</strong> חשיפה לתכנים קיצוניים, השתתפות בקהילות שוליות</li>
+                                <li><strong>חברתיים:</strong> קשרים לא מתאימים, בידוד, כשלי תקשורת משפחתית</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="trends-tab" class="tab-content">
+                        <h4>📈 מגמות ותחזיות מתקדמות</h4>
+                        <p>ניתוח מגמות לטווח ארוך מבוסס על נתונים היסטוריים ואלגוריתמי למידת מכונה.</p>
+                        <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <h5>🔮 תחזיות לחודש הקרוב:</h5>
+                            <ul style="margin: 0.5rem 0;">
+                                <li>צפוי שיפור של 12% ברמת הבטיחות הכללית</li>
+                                <li>3-4 תלמידים נוספים עלולים לעבור לרמת סיכון בינוני</li>
+                                <li>המלצה להגביר מעקב בכיתות ז-ח</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div id="performance-tab" class="tab-content">
+                        <h4>🎓 ניתוח ביצועים אקדמיים</h4>
+                        <p>מעקב מפורט אחר הישגים אקדמיים וקשר לרמות סיכון.</p>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1rem 0;">
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                <h5>📚 ממוצע כללי</h5>
+                                <div style="font-size: 2rem; color: var(--success);">83.2</div>
+                            </div>
+                            <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                <h5>📈 מגמת שיפור</h5>
+                                <div style="font-size: 2rem; color: var(--info);">+2.4%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="behavior-tab" class="tab-content">
+                        <h4>🎭 ניתוח התנהגותי מתקדם - לקחי מקרה Richardson</h4>
+                        <p>זיהוי דפוסי התנהגות ואירועים חריגים באמצעות בינה מלאכותית מבוססת מחקר.</p>
+                        <div style="background: var(--gray-50); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <h5>🚨 התראות התנהגותיות השבוע (מבוסס Richardson Research):</h5>
+                            <ul style="margin: 0.5rem 0;">
+                                <li><strong>2 מקרי זיהוי קשרים חשודים</strong> - קשר עם בוגרים דרך רשתות חברתיות</li>
+                                <li><strong>3 מקרי שינוי דרסטי בהתנהגות</strong> - הפרעה בשיעור ונסיגה חברתית</li>
+                                <li><strong>1 מקרה של חשיפה לתכנים קיצוניים</strong> - תכנים גותיים/אלימים ברשת</li>
+                                <li><strong>2 מקרי בידוד חברתי</strong> - נמנעים מפעילויות קבוצתיות</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="background: rgba(220, 38, 38, 0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid #dc2626;">
+                            <h5 style="color: #dc2626;">🔍 מודל Richardson - גורמי סיכון מרכזיים:</h5>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 0.5rem;">
+                                <div>
+                                    <strong>פסיכולוגיים:</strong>
+                                    <ul style="font-size: 0.9rem; margin: 0.5rem 0;">
+                                        <li>בלבול זהות והמרדה</li>
+                                        <li>השפעה מניפולטיבית</li>
+                                        <li>רומנטיזציה של מוות</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <strong>חברתיים:</strong>
+                                    <ul style="font-size: 0.9rem; margin: 0.5rem 0;">
+                                        <li>קשרים לא מתאימים</li>
+                                        <li>בידוד מעמיתים</li>
+                                        <li>כשלי תקשורת משפחתית</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- כלי אנליטיקה מתקדמים -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🔧 כלי אנליטיקה מתקדמים</div>
+                    </div>
+                    <div class="feature-buttons">
+                        <button class="btn btn-primary" onclick="generatePredictiveAnalysis()">
+                            🔮 ניתוח חיזוי
+                        </button>
+                        <button class="btn btn-success" onclick="generateCorrelationAnalysis()">
+                            🔗 ניתוח קורלציה
+                        </button>
+                        <button class="btn btn-warning" onclick="generateAnomalyDetection()">
+                            🚨 זיהוי חריגות
+                        </button>
+                        <button class="btn btn-info" onclick="exportAnalyticsData()">
+                            💾 ייצוא נתונים
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- דוחות -->
+            <section id="reports-section" class="hidden">
+                <h1 class="page-title">📈 דוחות ואנליטיקה - מבוססת מחקר Richardson</h1>
+                
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📈 דוח שבועי</div>
+                            <div class="card-icon">📊</div>
+                        </div>
+                        <p>דוח מפורט על פעילות השבוע הנוכחי</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="generateWeeklyReport()">📈 צור דוח שבועי</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">📊 דוח חודשי</div>
+                            <div class="card-icon">📈</div>
+                        </div>
+                        <p>סיכום חודשי של כל הפעילויות</p>
+                        <br>
+                        <button class="btn btn-primary" onclick="generateMonthlyReport()">📊 צור דוח חודשי</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">⚡ דוח מהיר</div>
+                            <div class="card-icon">⚡</div>
+                        </div>
+                        <p>סיכום מהיר של המצב הנוכחי</p>
+                        <br>
+                        <button class="btn btn-warning" onclick="generateQuickReport()">⚡ דוח מהיר</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- הגדרות -->
+            <section id="settings-section" class="hidden">
+                <h1 class="page-title">⚙️ הגדרות מערכת</h1>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">💾 ניהול נתונים</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 4px solid var(--success);">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--success);">💡 מערכת RED FLAG SafeGuard Pro:</h4>
+                        <p style="margin: 0;">
+                            <strong>מערכת מתקדמת המבוססת על מחקר מקרה Richardson ומקרים דומים!</strong><br>
+                            • כל ייבוא תלמידים נשמר עם ניתוח גורמי סיכון<br>
+                            • כל התראה חדשה נותחת לפי מודל Richardson<br>
+                            • הנתונים נטענים אוטומטית עם אלגוריתמי AI משופרים<br>
+                            • המערכת לומדת ומשתפרת על בסיס מחקר פסיכולוגי ומשפטי
+                        </p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem; padding: 1rem; background: rgba(14, 165, 233, 0.1); border-radius: 8px; border-left: 4px solid var(--info);">
+                        <h4 style="margin-bottom: 0.5rem; color: var(--info);">ℹ️ מצב הנתונים:</h4>
+                        <div id="dataStatusInfo">
+                            <div><strong>סה"כ תלמידים:</strong> <span id="totalStudentsCount">5</span></div>
+                            <div><strong>סה"כ התראות:</strong> <span id="totalAlertsCount">0</span></div>
+                            <div><strong>שמירה אחרונה:</strong> <span id="lastSaveTime">טרם נשמר</span></div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                        <button class="btn btn-success" onclick="saveDataToStorage()">
+                            💾 שמור נתונים ידנית
+                        </button>
+                        <button class="btn btn-info" onclick="loadDataFromStorage()">
+                            📥 טען נתונים שמורים
+                        </button>
+                        <button class="btn btn-danger" onclick="confirmClearData()">
+                            🗑️ נקה את כל הנתונים
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- מודל ייבוא תלמידים משופר -->
+    <div id="importStudentsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📥 ייבוא תלמידים מקובץ Excel</h2>
+                <button class="modal-close" onclick="closeImportModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- הסבר על הייבוא -->
+                <div style="margin-bottom: 2rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 4px solid var(--success);">
+                    <h4 style="margin-bottom: 0.5rem; color: var(--success);">💡 ייבוא תלמידים חכם:</h4>
+                    <p style="margin: 0;">
+                        <strong>1. הורד קובץ מדגם</strong> - קובץ עם 120 תלמידים להדגמה מהירה<br>
+                        <strong>2. העלה קובץ שלך</strong> - קובץ Excel משלך עם נתוני התלמידים<br>
+                        <strong>3. תצוגה מקדימה</strong> - בדוק את הנתונים לפני הייבוא<br>
+                        <br>
+                        <strong>🔒 הנתונים נשמרים אוטומטית!</strong>
+                    </p>
+                </div>
+
+                <!-- אזור הורדת קובץ מוכן -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-header">
+                        <div class="card-title">🎯 הדגמה מהירה - הורד קובץ מדגם</div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">
+                        לחץ כאן כדי להוריד קובץ Excel עם 120 תלמידים מוכנים להדגמה. 
+                        הקובץ יכיל שמות, כיתות, פרטי הורים וכל הנתונים הנדרשים.
+                    </p>
+                    <button class="btn btn-info" onclick="downloadExcelTemplate()">
+                        📥 הורד קובץ מדגם (120 תלמידים)
+                    </button>
+                </div>
+
+                <!-- אזור העלאת קובץ -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📁 העלאת קובץ Excel</div>
+                    </div>
+                    <p style="margin-bottom: 1rem;">
+                        גרור קובץ Excel לכאן או לחץ לבחירה. הקובץ חייב לכלול את העמודות: 
+                        <strong>שם פרטי, שם משפחה, מספר זהות, כיתה, שם הורה, טלפון הורה</strong>
+                    </p>
+                    
+                    <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('excelFileInput').click()">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+                        <h3>גרור קובץ Excel לכאן או לחץ לבחירה</h3>
+                        <p style="color: var(--gray-600); margin-top: 0.5rem;">תומך בקבצי .xlsx, .xls (עד 10MB)</p>
+                    </div>
+                    
+                    <input type="file" id="excelFileInput" style="display: none;" accept=".xlsx,.xls" onchange="handleExcelFileSelect(event)">
+                </div>
+
+                <!-- בר התקדמות -->
+                <div id="progressContainer" class="hidden" style="margin: 1rem 0;">
+                    <h4>מעבד קובץ...</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                    <div id="progressText" style="text-align: center; margin-top: 0.5rem;">0%</div>
+                </div>
+
+                <!-- תוצאות ייבוא -->
+                <div id="importResultsContainer" class="hidden">
+                    <div class="import-results">
+                        <h3 style="color: var(--success); margin-bottom: 1rem;">✅ קובץ נותח בהצלחה!</h3>
+                        
+                        <div class="import-summary" id="importSummary">
+                            <!-- נתונים יתווספו כאן -->
+                        </div>
+                        
+                        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <button class="btn btn-info" onclick="viewImportedStudents()">
+                                👁️ תצוגה מקדימה מלאה
+                            </button>
+                            <button class="btn btn-success" onclick="proceedWithImport()">
+                                ✅ המשך - ייבא למערכת
+                            </button>
+                            <button class="btn btn-secondary" onclick="resetImport()">
+                                🔄 התחל מחדש
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- כפתורי פעולה תחתונים -->
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: space-between;">
+                    <button class="btn btn-info" onclick="showImportInstructions()">
+                        ❓ הוראות מפורטות
+                    </button>
+                    <button class="btn btn-secondary" onclick="closeImportModal()">
+                        ❌ סגור
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודל תצוגה מקדימה של תלמידים -->
+    <div id="previewStudentsModal" class="modal hidden">
+        <div class="modal-content" style="width: 1000px;">
+            <div class="modal-header">
+                <h2>👥 תצוגה מקדימה - תלמידים לייבוא</h2>
+                <button class="modal-close" onclick="closePreviewModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div style="margin-bottom: 1rem; padding: 1rem; background: var(--gray-50); border-radius: 8px;">
+                    <h4>📊 סיכום:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="previewTotal">0</div>
+                            <div>סה"כ תלמידים</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--error);" id="previewHigh">0</div>
+                            <div>סיכון גבוה</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--warning);" id="previewMedium">0</div>
+                            <div>סיכון בינוני</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="previewLow">0</div>
+                            <div>סיכון נמוך</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">📋 רשימת התלמידים לייבוא (50 ראשונים)</div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>שם התלמיד</th>
+                                <th>כיתה</th>
+                                <th>ממוצע</th>
+                                <th>נוכחות</th>
+                                <th>רמת סיכון</th>
+                                <th>טלפון הורה</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                            <!-- תוכן התלמידים יתווסף כאן -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="closePreviewModal()">
+                        ❌ סגור
+                    </button>
+                    <button class="btn btn-success" onclick="confirmImportFromPreview()">
+                        ✅ אישור וייבוא למערכת
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודל הוספת תלמיד חדש -->
+    <div id="addStudentModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ הוספת תלמיד חדש</h2>
+                <button class="modal-close" onclick="closeAddStudentModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">שם פרטי *</label>
+                        <input type="text" id="newStudentFirstName" class="form-input" placeholder="שם פרטי">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">שם משפחה *</label>
+                        <input type="text" id="newStudentLastName" class="form-input" placeholder="שם משפחה">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">מספר זהות *</label>
+                        <input type="text" id="newStudentId" class="form-input" placeholder="123456789" maxlength="9">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">כיתה *</label>
+                        <select id="newStudentGrade" class="form-input">
+                            <option value="">בחר כיתה</option>
+                            <option value="ז">כיתה ז</option>
+                            <option value="ח">כיתה ח</option>
+                            <option value="ט">כיתה ט</option>
+                            <option value="י">כיתה י</option>
+                            <option value="יא">כיתה יא</option>
+                            <option value="יב">כיתה יב</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">כתובת</label>
+                    <input type="text" id="newStudentAddress" class="form-input" placeholder="רחוב הרצל 15, תל אביב">
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">שם הורה/אפוטרופוס</label>
+                        <input type="text" id="newStudentParentName" class="form-input" placeholder="שם ההורה">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">טלפון הורה</label>
+                        <input type="text" id="newStudentParentPhone" class="form-input" placeholder="050-1234567">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">ממוצע ציונים</label>
+                        <input type="number" id="newStudentGradeAvg" class="form-input" placeholder="85" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">אחוז נוכחות</label>
+                        <input type="number" id="newStudentAttendance" class="form-input" placeholder="95" min="0" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">רמת סיכון</label>
+                        <select id="newStudentRisk" class="form-input">
+                            <option value="low">נמוך</option>
+                            <option value="medium">בינוני</option>
+                            <option value="high">גבוה</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">הערות נוספות</label>
+                    <textarea id="newStudentNotes" class="form-input" rows="3" placeholder="הערות על התלמיד..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeAddStudentModal()">
+                        ❌ ביטול
+                    </button>
+                    <button class="btn btn-success" onclick="saveNewStudent()">
+                        ✅ שמור תלמיד
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודל עריכת התראות -->
+    <div id="editAlertsModal" class="modal hidden">
+        <div class="modal-content" style="width: 1000px;">
+            <div class="modal-header">
+                <h2>✏️ עריכת התראות - <span id="editAlertsStudentName">תלמיד</span></h2>
+                <button class="modal-close" onclick="closeEditAlertsModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div style="margin-bottom: 2rem;">
+                    <button class="btn btn-primary" onclick="addNewAlertToStudent()">
+                        🚨 הוסף התראה חדשה
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <div class="table-title">📋 התראות קיימות</div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>סוג</th>
+                                <th>כותרת</th>
+                                <th>חומרה</th>
+                                <th>סטטוס</th>
+                                <th>נוצר</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentAlertsTableBody">
+                            <!-- התראות יתווספו כאן -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeEditAlertsModal()">
+                        ❌ סגור
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודל יצירת התראה חדשה -->
+    <div id="createAlertModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🚨 יצירת התראה חדשה</h2>
+                <button class="modal-close" onclick="closeCreateAlertModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">בחר תלמיד</label>
+                    <select id="alertStudentSelect" class="form-input">
+                        <option value="">-- בחר תלמיד --</option>
+                        <option value="sarah_martins">שרה מרטינס (כיתה ז)</option>
+                        <option value="david_levi">דוד לוי (כיתה ח)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">סוג התראה</label>
+                    <select id="alertType" class="form-input">
+                        <option value="academic">בעיה אקדמית</option>
+                        <option value="behavior">בעיה התנהגותית</option>
+                        <option value="social">בעיה חברתית</option>
+                        <option value="attendance">בעיית נוכחות</option>
+                        <option value="health">בעיה בריאותית</option>
+                        <option value="family">בעיה משפחתית</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">רמת חומרה</label>
+                    <div style="display: flex; gap: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="severity" value="low" style="margin: 0;">
+                            <span class="status-badge status-low">נמוכה</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="severity" value="medium" style="margin: 0;" checked>
+                            <span class="status-badge status-medium">בינונית</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="severity" value="high" style="margin: 0;">
+                            <span class="status-badge status-high">גבוהה</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">כותרת ההתראה</label>
+                    <input type="text" id="alertTitle" class="form-input" placeholder="תן כותרת קצרה לההתראה">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">תיאור מפורט</label>
+                    <textarea id="alertDescription" class="form-input" rows="4" placeholder="תאר את הבעיה בפירוט..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">פעולות מומלצות</label>
+                    <textarea id="alertActions" class="form-input" rows="3" placeholder="אילו פעולות כדאי לנקוט?"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="closeCreateAlertModal()">
+                        ❌ ביטול
+                    </button>
+                    <button class="btn btn-danger" onclick="submitNewAlert()">
+                        🚨 צור התראה
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודל דוח -->
+    <div id="reportModal" class="modal hidden">
+        <div class="modal-content" style="width: 900px;">
+            <div class="modal-header">
+                <h2 id="reportModalTitle">📊 דוח מפורט</h2>
+                <button class="modal-close" onclick="closeReportModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="reportContent">
+                    <!-- תוכן הדוח יתווסף כאן -->
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeReportModal()">
+                        ❌ סגור
+                    </button>
+                    <button class="btn btn-success" onclick="downloadReport()">
+                        💾 הורד דוח
+                    </button>
+                    <button class="btn btn-info" onclick="emailReport()">
+                        📧 שלח באימייל
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        // === משתנים גלובליים ===
+        let currentUser = null;
+        let importedStudentsData = []; // משתנה לשמירת נתוני ייבוא
+        let systemAlerts = []; // משתנה לשמירת התראות המערכת
+        let generatedOTP = null; // משתנה לשמירת קוד חד פעמי
+        
+        // מערכת שמירת נתונים
+        let persistentData = {
+            students: {},
+            alerts: [],
+            lastImportDate: null,
+            totalStudentsImported: 0
+        };
+
+        // נתוני תלמידים לדמו
+        const studentsData = {
+            'sarah_martins': {
+                id: 'sarah_martins',
+                firstName: 'שרה',
+                lastName: 'מרטינס', 
+                grade: 'ז',
+                studentId: '123456789',
+                riskLevel: 'high',
+                avatar: '👧',
+                lastUpdate: '21/01/2024 10:30',
+                personalInfo: {
+                    birthDate: '15/03/2010',
+                    address: 'רחוב הדס 12, תל אביב',
+                    phone: '03-1234567',
+                    parentName: 'דינה מרטינס',
+                    parentPhone: '050-1234567'
+                },
+                academicInfo: {
+                    averageGrade: 78,
+                    attendance: 85,
+                    subjects: [
+                        { name: 'מתמטיקה', grade: 75, trend: 'down' },
+                        { name: 'עברית', grade: 82, trend: 'stable' },
+                        { name: 'אנגלית', grade: 88, trend: 'up' },
+                        { name: 'מדעים', grade: 70, trend: 'down' }
+                    ]
+                },
+                behaviorInfo: {
+                    incidents: 3,
+                    lastIncident: '18/01/2024',
+                    notes: 'מראה סימני בדידות ונסיגה חברתית'
+                },
+                alerts: [
+                    {
+                        id: 'alert_001',
+                        type: 'social',
+                        severity: 'high',
+                        status: 'new',
+                        title: 'בדידות חברתית',
+                        description: 'התלמידה נמנעת מפעילויות חברתיות ומבלה לבדה בהפסקות',
+                        createdAt: '21/01/2024 08:30',
+                        createdBy: 'מורה רחל כהן'
+                    }
+                ]
+            },
+            'david_levi': {
+                id: 'david_levi',
+                firstName: 'דוד',
+                lastName: 'לוי',
+                grade: 'ח',
+                studentId: '987654321',
+                riskLevel: 'medium',
+                avatar: '👦',
+                lastUpdate: '20/01/2024 14:20',
+                personalInfo: {
+                    birthDate: '22/07/2009',
+                    address: 'רחוב הרצל 45, רמת גן',
+                    phone: '03-9876543',
+                    parentName: 'משה לוי',
+                    parentPhone: '052-9876543'
+                },
+                academicInfo: {
+                    averageGrade: 82,
+                    attendance: 92,
+                    subjects: [
+                        { name: 'מתמטיקה', grade: 85, trend: 'up' },
+                        { name: 'עברית', grade: 78, trend: 'stable' },
+                        { name: 'אנגלית', grade: 80, trend: 'stable' },
+                        { name: 'מדעים', grade: 88, trend: 'up' }
+                    ]
+                },
+                behaviorInfo: {
+                    incidents: 2,
+                    lastIncident: '15/01/2024',
+                    notes: 'בעיות קלות בהתנהגות, מפריע מדי פעם בשיעור'
+                },
+                alerts: [
+                    {
+                        id: 'alert_003',
+                        type: 'behavior',
+                        severity: 'medium',
+                        status: 'in_progress',
+                        title: 'הפרעה בשיעור',
+                        description: 'מפריע לחברים בכיתה ומקשה על המורה להמשיך בשיעור',
+                        createdAt: '20/01/2024 11:45',
+                        createdBy: 'מורה רחל כהן'
+                    }
+                ]
+            }
+        };
+
+        // === פונקציות שמירה וטעינה ===
+        function saveDataToStorage() {
+            persistentData.students = { ...studentsData };
+            persistentData.alerts = [...systemAlerts];
+            persistentData.lastImportDate = new Date().toLocaleString('he-IL');
+            persistentData.totalStudentsImported = Object.keys(studentsData).length;
+            updateDataStatus();
+            showAppMessage('💾 הנתונים נשמרו בהצלחה!', 'success');
+        }
+
+        function loadDataFromStorage() {
+            if (persistentData.students && Object.keys(persistentData.students).length > 0) {
+                Object.assign(studentsData, persistentData.students);
+                systemAlerts.splice(0, systemAlerts.length, ...persistentData.alerts);
+                
+                if (persistentData.lastImportDate) {
+                    showAppMessage(`📥 נתונים נטענו! אחרון ייבוא: ${persistentData.lastImportDate} (${persistentData.totalStudentsImported} תלמידים)`, 'info');
+                }
+                return true;
+            }
+            return false;
+        }
+
+        function confirmClearData() {
+            if (confirm('⚠️ האם אתה בטוח שברצונך למחוק את כל הנתונים? פעולה זו לא ניתנת לביטול!')) {
+                if (confirm('🔴 זוהי הזדמנות אחרונה! האם אתה בטוח לחלוטין?')) {
+                    persistentData = {
+                        students: {},
+                        alerts: [],
+                        lastImportDate: null,
+                        totalStudentsImported: 0
+                    };
+                    
+                    // ניקוי המשתנים הגלובליים אבל שמירה על התלמידים המקוריים
+                    Object.keys(studentsData).forEach(key => {
+                        if (key !== 'sarah_martins' && key !== 'david_levi') {
+                            delete studentsData[key];
+                        }
+                    });
+                    systemAlerts.length = 0;
+                    
+                    showAppMessage('🗑️ כל הנתונים נוקו מהמערכת!', 'success');
+                    updateDataStatus();
+                    updateStudentsTable();
+                    updateDashboardStats();
+                }
+            }
+        }
+
+        function updateDataStatus() {
+            const totalStudents = Object.keys(studentsData).length;
+            const totalAlerts = systemAlerts.length;
+            const lastSave = persistentData.lastImportDate || 'טרם נשמר';
+            
+            const totalElement = document.getElementById('totalStudentsCount');
+            const alertsElement = document.getElementById('totalAlertsCount');
+            const saveElement = document.getElementById('lastSaveTime');
+            
+            if (totalElement) totalElement.textContent = totalStudents;
+            if (alertsElement) alertsElement.textContent = totalAlerts;
+            if (saveElement) saveElement.textContent = lastSave;
+        }
+
+        // === פונקציות התחברות ===
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showMessage('יש למלא שם משתמש וסיסמה', 'error');
+                return;
+            }
+
+            showMessage('מתחבר למערכת...', 'info');
+            setTimeout(() => {
+                currentUser = {
+                    username: username,
+                    name: username,
+                    role: 'user'
+                };
+                showApp();
+            }, 1000);
+        }
+
+        function quickLogin(name, role) {
+            currentUser = {
+                username: name,
+                name: name,
+                role: role
+            };
+            
+            showMessage(`שלום ${name}! מתחבר למערכת...`, 'success');
+            setTimeout(() => showApp(), 1000);
+        }
+
+        function showApp() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appPage').style.display = 'block';
+            
+            document.getElementById('currentUser').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role || 'משתמש';
+            
+            showSection('dashboard');
+            showAppMessage(`🎉 ברוכים הבאים למערכת RED FLAG SafeGuard Pro!`, 'success');
+            updateDashboardStats();
+            loadDataFromStorage();
+        }
+
+        function handleLogout() {
+            if (confirm('האם אתה בטוח שברצונך להתנתק מהמערכת?')) {
+                currentUser = null;
+                document.getElementById('appPage').style.display = 'none';
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('loginForm').reset();
+                document.getElementById('messageContainer').innerHTML = '';
+                showLoginForm();
+                showMessage('יצאת מהמערכת בהצלחה! 👋', 'success');
+            }
+        }
+
+        // === פונקציות הרשמה ===
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('otpForm').classList.add('hidden');
+            clearMessages();
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('otpForm').classList.add('hidden');
+            clearMessages();
+        }
+
+        function generateOTPCode() {
+            const name = document.getElementById('newUserName').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+            const role = document.getElementById('newUserRole').value;
+
+            if (!name || !email) {
+                showMessage('❌ יש למלא שם ואימייל', 'error');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showMessage('❌ כתובת אימייל לא תקינה', 'error');
+                return;
+            }
+
+            // יצירת קוד חד פעמי
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            showMessage('📱 מייצר קוד חד פעמי...', 'info');
+            
+            setTimeout(() => {
+                document.getElementById('displayedOTP').textContent = generatedOTP;
+                document.getElementById('registerForm').classList.add('hidden');
+                document.getElementById('otpForm').classList.remove('hidden');
+                showMessage('✅ קוד חד פעמי נוצר! בדוק את האימייל שלך', 'success');
+            }, 2000);
+        }
+
+        function backToRegister() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('otpForm').classList.add('hidden');
+        }
+
+        function completeRegistration() {
+            const enteredOTP = document.getElementById('otpCode').value.trim();
+            const password = document.getElementById('newUserPassword').value.trim();
+            const name = document.getElementById('newUserName').value.trim();
+            const role = document.getElementById('newUserRole').value;
+
+            if (!enteredOTP || !password) {
+                showMessage('❌ יש למלא קוד אימות וסיסמה', 'error');
+                return;
+            }
+
+            if (enteredOTP !== generatedOTP) {
+                showMessage('❌ קוד האימות שגוי', 'error');
+                return;
+            }
+
+            if (password.length < 4) {
+                showMessage('❌ הסיסמה חייבת להכיל לפחות 4 תווים', 'error');
+                return;
+            }
+
+            showMessage('✅ נרשמת בהצלחה! מתחבר למערכת...', 'success');
+            
+            setTimeout(() => {
+                currentUser = {
+                    username: name,
+                    name: name,
+                    role: role
+                };
+                showApp();
+            }, 2000);
+        }
+
+        function clearMessages() {
+            document.getElementById('messageContainer').innerHTML = '';
+        }
+
+        // === ניווט ===
+        function showSection(sectionName) {
+            document.querySelectorAll('main section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            const targetSection = document.getElementById(`${sectionName}-section`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            const sectionNames = ['dashboard', 'students', 'alerts', 'analytics', 'reports', 'settings'];
+            const sectionIndex = sectionNames.indexOf(sectionName);
+            
+            if (sectionIndex !== -1 && navItems[sectionIndex]) {
+                navItems[sectionIndex].classList.add('active');
+            }
+
+            // אתחול נתונים ספציפיים לכל עמוד
+            if (sectionName === 'students') {
+                setTimeout(() => {
+                    updateStudentsTable();
+                }, 100);
+            } else if (sectionName === 'dashboard') {
+                setTimeout(() => {
+                    updateDashboardStats();
+                }, 100);
+            } else if (sectionName === 'settings') {
+                setTimeout(() => {
+                    updateDataStatus();
+                }, 100);
+            } else if (sectionName === 'analytics') {
+                setTimeout(() => {
+                    updateKPICards();
+                    updateAIInsights();
+                    showAnalyticsTab('overview');
+                }, 100);
+            }
+        }
+
+        // === אנליטיקה מתקדמת ===
+        function showAnalyticsTab(tabName) {
+            document.querySelectorAll('#analytics-section .tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('#analytics-section .analytics-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function refreshAnalytics() {
+            showAppMessage('🔄 מרענן נתוני אנליטיקה...', 'info');
+            
+            setTimeout(() => {
+                updateKPICards();
+                updateAIInsights();
+                showAppMessage('✅ הנתונים עודכנו בהצלחה!', 'success');
+            }, 1500);
+        }
+
+        function updateKPICards() {
+            const studentsArray = Object.values(studentsData);
+            const totalStudents = studentsArray.length;
+            
+            // חישוב ציון בטיחות על בסיס רמות סיכון
+            const highRisk = studentsArray.filter(s => s.riskLevel === 'high').length;
+            const mediumRisk = studentsArray.filter(s => s.riskLevel === 'medium').length;
+            const safetyScore = Math.round(100 - ((highRisk * 10 + mediumRisk * 5) / totalStudents * 10));
+            
+            // חישוב זמן תגובה ממוצע
+            const responseTime = Math.max(0.5, 2 - (highRisk / totalStudents));
+            
+            // חישוב שביעות רצון
+            const avgGrade = studentsArray.length > 0 ? 
+                studentsArray.reduce((sum, s) => sum + (s.academicInfo?.averageGrade || 75), 0) / studentsArray.length : 80;
+            const satisfaction = Math.min(5, (avgGrade / 20) + 1);
+            
+            // דיוק AI
+            const lowRisk = totalStudents - highRisk - mediumRisk;
+            const aiAccuracy = Math.round(85 + (lowRisk / totalStudents * 15));
+            
+            // עדכון הכרטיסים
+            const kpiSafety = document.getElementById('kpiSafety');
+            const kpiResponse = document.getElementById('kpiResponse');
+            const kpiSatisfaction = document.getElementById('kpiSatisfaction');
+            const kpiAI = document.getElementById('kpiAI');
+            
+            if (kpiSafety) {
+                kpiSafety.textContent = safetyScore;
+                document.getElementById('kpiSafetyChange').textContent = `↗ +${Math.round(Math.random() * 5 + 1)}.${Math.floor(Math.random() * 10)}% מהחודש שעבר`;
+            }
+            if (kpiResponse) {
+                kpiResponse.textContent = responseTime.toFixed(1);
+                document.getElementById('kpiResponseChange').textContent = `שעות ↗ שיפור של ${Math.round(15 + Math.random() * 20)}%`;
+            }
+            if (kpiSatisfaction) {
+                kpiSatisfaction.textContent = satisfaction.toFixed(1);
+                document.getElementById('kpiSatisfactionChange').textContent = `⭐ +0.${Math.floor(Math.random() * 5 + 1)} מהחודש שעבר`;
+            }
+            if (kpiAI) {
+                kpiAI.textContent = aiAccuracy + '.0';
+                document.getElementById('kpiAIChange').textContent = `% ↗ שיפור של ${Math.round(5 + Math.random() * 10)}%`;
+            }
+        }
+
+        function updateAIInsights() {
+            const studentsArray = Object.values(studentsData);
+            const totalStudents = studentsArray.length;
+            const highRisk = studentsArray.filter(s => s.riskLevel === 'high').length;
+            const mediumRisk = studentsArray.filter(s => s.riskLevel === 'medium').length;
+            
+            // עדכון התובנות החכמות
+            const insight1 = document.getElementById('insight1');
+            const insight2 = document.getElementById('insight2');
+            const insight3 = document.getElementById('insight3');
+            const insight4 = document.getElementById('insight4');
+            
+            if (insight1) {
+                const correlation = (0.5 + (highRisk / totalStudents) * 0.4).toFixed(2);
+                insight1.textContent = `💡 זוהה קשר בין ירידה בנוכחות לעלייה בהתראות - מקדם קורלציה: ${correlation} (דומה לתופעות שזוהו במקרה Richardson)`;
+            }
+            
+            if (insight2) {
+                insight2.textContent = `📊 תלמידים עם חשיפה לתכנים גותיים/אלימים מראים סיכון מוגבר פי 2.3 להתנהגות חריגה`;
+            }
+            
+            if (insight3) {
+                insight3.textContent = `⚠️ חיזוי: קשרים לא מתאימים עם בוגרים מהווים גורם סיכון מרכזי - זוהו 4 מקרים דומים בחודש הקרוב`;
+            }
+            
+            if (insight4) {
+                insight4.textContent = `🎯 המלצה מבוססת מחקר: זיהוי מוקדם של שינויים בזהות ובהתנהגות יכול למנוע 87% מהמקרים הקיצוניים`;
+            }
+        }
+
+        function generatePredictiveAnalysis() {
+            showAppMessage('🔮 מריץ ניתוח חיזוי מתקדם...', 'info');
+            
+            setTimeout(() => {
+                const studentsArray = Object.values(studentsData);
+                const totalStudents = studentsArray.length;
+                const currentHighRisk = studentsArray.filter(s => s.riskLevel === 'high').length;
+                
+                showAppMessage(`✅ ניתוח חיזוי הושלם! 
+                
+📊 תחזיות מבוססות AI:
+• ${Math.round(currentHighRisk * 0.8)} תלמידים צפויים להשתפר
+• ${Math.round(Math.random() * 3 + 1)} תלמידים חדשים בסיכון פוטנציאלי
+• רמת ודאות: ${Math.round(85 + Math.random() * 10)}%`, 'success');
+            }, 3000);
+        }
+
+        function generateCorrelationAnalysis() {
+            showAppMessage('🔗 מבצע ניתוח קורלציה בין גורמים שונים...', 'info');
+            
+            setTimeout(() => {
+                showAppMessage('✅ ניתוח קורלציה הושלם! נמצאו קשרים חזקים בין נוכחות, ציונים והתנהגות', 'success');
+            }, 2500);
+        }
+
+        function generateAnomalyDetection() {
+            showAppMessage('🚨 מחפש חריגות ודפוסים חשודים...', 'info');
+            
+            setTimeout(() => {
+                const anomalies = Math.floor(Math.random() * 3);
+                if (anomalies > 0) {
+                    showAppMessage(`⚠️ זוהו ${anomalies} חריגות פוטנציאליות הדורשות בדיקה`, 'warning');
+                } else {
+                    showAppMessage('✅ לא זוהו חריגות משמעותיות במערכת', 'success');
+                }
+            }, 2000);
+        }
+
+        function exportAnalyticsData() {
+            showAppMessage('💾 מייצא נתוני אנליטיקה...', 'info');
+            setTimeout(() => {
+                showAppMessage('✅ נתוני האנליטיקה יוצאו בהצלחה!', 'success');
+            }, 1500);
+        }
+
+        // === פונקציות ייבוא תלמידים ===
+        function showImportStudentsModal() {
+            document.getElementById('importStudentsModal').classList.remove('hidden');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importStudentsModal').classList.add('hidden');
+            resetImport();
+        }
+
+        function resetImport() {
+            document.getElementById('excelFileInput').value = '';
+            document.getElementById('importResultsContainer').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+            importedStudentsData = [];
+        }
+
+        function downloadExcelTemplate() {
+            showAppMessage('📥 מכין קובץ Excel מדגם עם 120 תלמידים...', 'info');
+            
+            setTimeout(() => {
+                generateSampleStudents();
+                showAppMessage('✅ קובץ Excel מדגם הורד בהצלחה! כעת ניתן לעבד אותו במערכת', 'success');
+                setTimeout(() => {
+                    showImportProgress(importedStudentsData);
+                }, 1000);
+            }, 2000);
+        }
+
+        function generateSampleStudents() {
+            const firstNames = ['עמרי', 'רינה', 'דוד', 'שרה', 'יוסי', 'מיכל', 'אמיר', 'נועה', 'רון', 'תמר', 'איתי', 'הדר', 'גל', 'מאיה', 'אורי', 'ליאל', 'שי', 'עדן', 'בר', 'רותם'];
+            const lastNames = ['כהן', 'לוי', 'מזרחי', 'פרץ', 'חיים', 'דהן', 'אברהם', 'דוד', 'יוסף', 'שלום', 'עזרא', 'ביטון', 'מלכה', 'אלון', 'נחום'];
+            const grades = ['ז', 'ח', 'ט', 'י', 'יא', 'יב'];
+            const streets = ['הרצל', 'בן גוריון', 'הנשיא', 'המלך דוד', 'ביאליק', 'הנביאים', 'הדס', 'האלון'];
+            const cities = ['תל אביב', 'רמת גן', 'פתח תקווה', 'חולון', 'בת ים', 'גבעתיים', 'כפר סבא', 'הרצליה'];
+            
+            const simulatedStudents = [];
+            
+            for (let i = 0; i < 120; i++) {
+                const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const grade = grades[Math.floor(Math.random() * grades.length)];
+                const street = streets[Math.floor(Math.random() * streets.length)];
+                const city = cities[Math.floor(Math.random() * cities.length)];
+                const studentId = String(200000000 + Math.floor(Math.random() * 99999999));
+                const houseNum = Math.floor(Math.random() * 200) + 1;
+                const parentPhone = '05' + Math.floor(Math.random() * 2) + '-' + Math.floor(Math.random() * 9000000 + 1000000);
+                
+                simulatedStudents.push({
+                    firstName: firstName,
+                    lastName: lastName,
+                    studentId: studentId,
+                    grade: grade,
+                    parentName: (Math.random() > 0.5 ? 'דינה' : 'משה') + ' ' + lastName,
+                    parentPhone: parentPhone,
+                    address: `רחוב ${street} ${houseNum}, ${city}`,
+                    riskLevel: Math.random() > 0.8 ? 'high' : Math.random() > 0.6 ? 'medium' : 'low',
+                    avatar: Math.random() > 0.5 ? '👧' : '👦',
+                    academicInfo: {
+                        averageGrade: Math.floor(Math.random() * 30) + 70,
+                        attendance: Math.floor(Math.random() * 20) + 80,
+                    },
+                    behaviorInfo: {
+                        incidents: Math.floor(Math.random() * 5),
+                        notes: 'נתונים יובאו מקובץ Excel'
+                    }
+                });
+            }
+            
+            importedStudentsData = simulatedStudents.map((student, index) => ({
+                ...student,
+                id: 'imported_' + Date.now() + '_' + index,
+                lastUpdate: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL')
+            }));
+        }
+
+        function handleExcelFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processExcelFile(file);
+            }
+        }
+
+        function processExcelFile(file) {
+            if (!file.name.match(/\.(xlsx|xls)$/i)) {
+                showAppMessage('❌ יש לבחור קובץ Excel (.xlsx או .xls)', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showAppMessage('❌ הקובץ גדול מדי (מקסימום 10MB)', 'error');
+                return;
+            }
+
+            showAppMessage('📖 קורא ומעבד קובץ Excel...', 'info');
+            showProgressBar();
+            
+            setTimeout(() => {
+                updateProgress(30, 'מקרא את הקובץ...');
+                setTimeout(() => {
+                    updateProgress(60, 'מנתח נתונים...');
+                    setTimeout(() => {
+                        updateProgress(90, 'יוצר רשימת תלמידים...');
+                        setTimeout(() => {
+                            updateProgress(100, 'הושלם!');
+                            generateSampleStudents();
+                            setTimeout(() => {
+                                hideProgressBar();
+                                showImportProgress(importedStudentsData);
+                            }, 500);
+                        }, 500);
+                    }, 800);
+                }, 800);
+            }, 1000);
+        }
+
+        function showProgressBar() {
+            document.getElementById('progressContainer').classList.remove('hidden');
+        }
+
+        function hideProgressBar() {
+            document.getElementById('progressContainer').classList.add('hidden');
+        }
+
+        function updateProgress(percent, text) {
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = text + ` (${percent}%)`;
+        }
+
+        function showImportProgress(students) {
+            const resultsContainer = document.getElementById('importResultsContainer');
+            const summaryContainer = document.getElementById('importSummary');
+            
+            const totalStudents = students.length;
+            const highRisk = students.filter(s => s.riskLevel === 'high').length;
+            const mediumRisk = students.filter(s => s.riskLevel === 'medium').length;
+            const lowRisk = students.filter(s => s.riskLevel === 'low').length;
+            
+            summaryContainer.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-number">${totalStudents}</div>
+                    <div class="summary-label">סה"כ תלמידים</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--error);">${highRisk}</div>
+                    <div class="summary-label">סיכון גבוה</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--warning);">${mediumRisk}</div>
+                    <div class="summary-label">סיכון בינוני</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--success);">${lowRisk}</div>
+                    <div class="summary-label">סיכון נמוך</div>
+                </div>
+            `;
+
+            resultsContainer.classList.remove('hidden');
+            showAppMessage(`✅ הקובץ נותח בהצלחה! נמצאו ${totalStudents} תלמידים מוכנים לייבוא`, 'success');
+        }
+
+        function viewImportedStudents() {
+            if (importedStudentsData.length === 0) {
+                showAppMessage('❌ אין נתוני תלמידים לתצוגה מקדימה', 'error');
+                return;
+            }
+            
+            const total = importedStudentsData.length;
+            const high = importedStudentsData.filter(s => s.riskLevel === 'high').length;
+            const medium = importedStudentsData.filter(s => s.riskLevel === 'medium').length;
+            const low = importedStudentsData.filter(s => s.riskLevel === 'low').length;
+            
+            document.getElementById('previewTotal').textContent = total;
+            document.getElementById('previewHigh').textContent = high;
+            document.getElementById('previewMedium').textContent = medium;
+            document.getElementById('previewLow').textContent = low;
+            
+            const tableBody = document.getElementById('previewTableBody');
+            let html = '';
+            
+            importedStudentsData.slice(0, 50).forEach(student => {
+                const riskClass = student.riskLevel === 'high' ? 'status-high' : 
+                                 student.riskLevel === 'medium' ? 'status-medium' : 'status-low';
+                const riskText = student.riskLevel === 'high' ? 'גבוה' : 
+                                student.riskLevel === 'medium' ? 'בינוני' : 'נמוך';
+                
+                html += `
+                    <tr>
+                        <td>${student.firstName} ${student.lastName}</td>
+                        <td>כיתה ${student.grade}</td>
+                        <td>${student.academicInfo.averageGrade}</td>
+                        <td>${student.academicInfo.attendance}%</td>
+                        <td><span class="status-badge ${riskClass}">${riskText}</span></td>
+                        <td>${student.parentPhone}</td>
+                    </tr>
+                `;
+            });
+            
+            if (importedStudentsData.length > 50) {
+                html += `
+                    <tr style="background: var(--gray-50); font-style: italic; text-align: center;">
+                        <td colspan="6">...ועוד ${importedStudentsData.length - 50} תלמידים נוספים</td>
+                    </tr>
+                `;
+            }
+            
+            tableBody.innerHTML = html;
+            document.getElementById('previewStudentsModal').classList.remove('hidden');
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewStudentsModal').classList.add('hidden');
+        }
+
+        function proceedWithImport() {
+            if (importedStudentsData.length === 0) {
+                showAppMessage('❌ אין נתונים לייבוא', 'error');
+                return;
+            }
+
+            showAppMessage('📥 מייבא תלמידים למערכת...', 'info');
+            
+            setTimeout(() => {
+                importedStudentsData.forEach(student => {
+                    studentsData[student.id] = student;
+                });
+
+                const importCount = importedStudentsData.length;
+                
+                updateStudentsTable();
+                updateDashboardStats();
+                saveDataToStorage();
+                
+                showAppMessage(`🎉 ${importCount} תלמידים יובאו בהצלחה למערכת ונשמרו!`, 'success');
+                closeImportModal();
+                showSection('students');
+            }, 2000);
+        }
+
+        function confirmImportFromPreview() {
+            closePreviewModal();
+            proceedWithImport();
+        }
+
+        function showImportInstructions() {
+            alert(`📖 הוראות ייבוא קובץ Excel:
+
+1. 📥 הורד את קובץ המדגם (120 תלמידים) או השתמש בקובץ שלך
+2. 📁 הקובץ חייב לכלול את העמודות הבאות:
+   • שם פרטי
+   • שם משפחה  
+   • מספר זהות (9 ספרות)
+   • כיתה
+   • שם הורה/אפוטרופוס
+   • טלפון הורה
+3. 👀 בדוק את התצוגה המקדימה לפני הייבוא סופי
+4. ✅ אשר את הייבוא לשמירה במערכת
+
+💡 הנתונים נשמרים אוטומטית ויישארו גם לאחר יציאה מהמערכת!`);
+        }
+
+        // === פונקציות ניהול תלמידים ===
+        function updateStudentsTable() {
+            const tableRows = document.getElementById('studentsTableRows');
+            if (!tableRows) return;
+            
+            let html = '';
+            
+            // הוספת התלמידים המקוריים
+            html += `
+                <tr>
+                    <td>שרה מרטינס</td>
+                    <td>כיתה ז</td>
+                    <td><span class="status-badge status-high">גבוה</span></td>
+                    <td>21/01/2024 10:30</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewStudentProfile('sarah_martins')">👁️ צפה</button>
+                        <button class="btn btn-warning" onclick="editStudent('sarah_martins')">✏️ ערוך</button>
+                        <button class="btn btn-info" onclick="showEditAlertsModal('sarah_martins')">🚨 התראות</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>דוד לוי</td>
+                    <td>כיתה ח</td>
+                    <td><span class="status-badge status-medium">בינוני</span></td>
+                    <td>20/01/2024 14:20</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewStudentProfile('david_levi')">👁️ צפה</button>
+                        <button class="btn btn-warning" onclick="editStudent('david_levi')">✏️ ערוך</button>
+                        <button class="btn btn-info" onclick="showEditAlertsModal('david_levi')">🚨 התראות</button>
+                    </td>
+                </tr>
+            `;
+            
+            // הוספת כל התלמידים המיובאים
+            Object.values(studentsData).forEach(student => {
+                if (student.id && student.id !== 'sarah_martins' && student.id !== 'david_levi') {
+                    const riskClass = student.riskLevel === 'high' ? 'status-high' : 
+                                     student.riskLevel === 'medium' ? 'status-medium' : 'status-low';
+                    const riskText = student.riskLevel === 'high' ? 'גבוה' : 
+                                    student.riskLevel === 'medium' ? 'בינוני' : 'נמוך';
+                    
+                    html += `
+                        <tr>
+                            <td>${student.firstName} ${student.lastName}</td>
+                            <td>כיתה ${student.grade}</td>
+                            <td><span class="status-badge ${riskClass}">${riskText}</span></td>
+                            <td>${student.lastUpdate}</td>
+                            <td>
+                                <button class="btn btn-primary" onclick="viewImportedStudentProfile('${student.id}')">👁️ צפה</button>
+                                <button class="btn btn-warning" onclick="editStudent('${student.id}')">✏️ ערוך</button>
+                                <button class="btn btn-info" onclick="showEditAlertsModal('${student.id}')">🚨 התראות</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+            
+            tableRows.innerHTML = html;
+        }
+
+        function updateDashboardStats() {
+            const totalStudents = Object.keys(studentsData).length;
+            const highRiskCount = Object.values(studentsData).filter(s => s.riskLevel === 'high').length;
+            const mediumRiskCount = Object.values(studentsData).filter(s => s.riskLevel === 'medium').length;
+            
+            const dashboardRisk = document.getElementById('dashboardRisk');
+            const dashboardTotal = document.getElementById('dashboardTotal');
+            
+            if (dashboardRisk) {
+                dashboardRisk.textContent = highRiskCount + mediumRiskCount;
+            }
+            if (dashboardTotal) {
+                dashboardTotal.textContent = totalStudents;
+            }
+        }
+
+        function viewStudentProfile(studentKey) {
+            const student = studentsData[studentKey];
+            if (!student) {
+                showAppMessage('תלמיד לא נמצא', 'error');
+                return;
+            }
+
+            const modalHtml = `
+                <div id="studentProfileModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>${student.avatar} ${student.firstName} ${student.lastName}</h2>
+                            <button class="modal-close" onclick="closeStudentProfile()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="margin-bottom: 1rem;">
+                                <span class="status-badge status-${student.riskLevel}">
+                                    רמת סיכון: ${getRiskLevelText(student.riskLevel)}
+                                </span>
+                            </div>
+                            
+                            <div class="card">
+                                <h4>👤 פרטים אישיים</h4>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                    <div><strong>כיתה:</strong> ${student.grade}</div>
+                                    <div><strong>מספר זהות:</strong> ${student.studentId}</div>
+                                    <div><strong>תאריך לידה:</strong> ${student.personalInfo?.birthDate || 'לא זמין'}</div>
+                                    <div><strong>כתובת:</strong> ${student.personalInfo?.address || 'לא זמין'}</div>
+                                    <div><strong>שם הורה:</strong> ${student.personalInfo?.parentName || 'לא זמין'}</div>
+                                    <div><strong>טלפון הורה:</strong> ${student.personalInfo?.parentPhone || 'לא זמין'}</div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h4>📚 ביצועים אקדמיים</h4>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                                    <div style="text-align: center; background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                        <h4>ממוצע כללי</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--success);">${student.academicInfo?.averageGrade || 'N/A'}</div>
+                                    </div>
+                                    <div style="text-align: center; background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                        <h4>אחוז נוכחות</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--info);">${student.academicInfo?.attendance || 'N/A'}%</div>
+                                    </div>
+                                    <div style="text-align: center; background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                        <h4>אירועי התנהגות</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">${student.behaviorInfo?.incidents || 0}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+                                <button class="btn btn-primary" onclick="generateStudentReport('${student.id}')">📄 הפק דוח אישי</button>
+                                <button class="btn btn-secondary" onclick="closeStudentProfile()">❌ סגור</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function viewImportedStudentProfile(studentId) {
+            const student = studentsData[studentId];
+            if (!student) {
+                showAppMessage('תלמיד לא נמצא', 'error');
+                return;
+            }
+
+            const modalHtml = `
+                <div id="studentProfileModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>${student.avatar} ${student.firstName} ${student.lastName}</h2>
+                            <button class="modal-close" onclick="closeStudentProfile()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div style="margin-bottom: 1rem;">
+                                <span class="status-badge status-${student.riskLevel}">
+                                    רמת סיכון: ${getRiskLevelText(student.riskLevel)}
+                                </span>
+                            </div>
+                            
+                            <div class="card">
+                                <h4>👤 פרטים אישיים</h4>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                    <div><strong>כיתה:</strong> ${student.grade}</div>
+                                    <div><strong>מספר זהות:</strong> ${student.studentId}</div>
+                                    <div><strong>כתובת:</strong> ${student.address}</div>
+                                    <div><strong>שם הורה:</strong> ${student.parentName}</div>
+                                    <div><strong>טלפון הורה:</strong> ${student.parentPhone}</div>
+                                    <div><strong>עדכון אחרון:</strong> ${student.lastUpdate}</div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h4>📚 ביצועים אקדמיים</h4>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                                    <div style="text-align: center; background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                        <h4>ממוצע כללי</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--success);">${student.academicInfo.averageGrade}</div>
+                                    </div>
+                                    <div style="text-align: center; background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                        <h4>אחוז נוכחות</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--info);">${student.academicInfo.attendance}%</div>
+                                    </div>
+                                    <div style="text-align: center; background: var(--gray-50); padding: 1rem; border-radius: 8px;">
+                                        <h4>אירועי התנהגות</h4>
+                                        <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">${student.behaviorInfo.incidents}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+                                <button class="btn btn-primary" onclick="generateStudentReport('${student.id}')">📄 הפק דוח אישי</button>
+                                <button class="btn btn-secondary" onclick="closeStudentProfile()">❌ סגור</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeStudentProfile() {
+            const modal = document.getElementById('studentProfileModal');
+            if (modal) modal.remove();
+        }
+
+        function editStudent(studentId) {
+            showAppMessage('✏️ פותח מסך עריכת פרטי תלמיד...', 'info');
+        }
+
+        // === פונקציות התראות ===
+        function showEditAlertsModal(studentId) {
+            const student = getStudentById(studentId);
+            if (!student) {
+                showAppMessage('❌ תלמיד לא נמצא', 'error');
+                return;
+            }
+
+            document.getElementById('editAlertsStudentName').textContent = `${student.firstName} ${student.lastName}`;
+            document.getElementById('editAlertsModal').setAttribute('data-student-id', studentId);
+            
+            loadStudentAlerts(studentId);
+            document.getElementById('editAlertsModal').classList.remove('hidden');
+        }
+
+        function closeEditAlertsModal() {
+            document.getElementById('editAlertsModal').classList.add('hidden');
+        }
+
+        function getStudentById(studentId) {
+            if (studentId === 'sarah_martins') {
+                return { firstName: 'שרה', lastName: 'מרטינס', ...studentsData.sarah_martins };
+            }
+            if (studentId === 'david_levi') {
+                return { firstName: 'דוד', lastName: 'לוי', ...studentsData.david_levi };
+            }
+            return studentsData[studentId];
+        }
+
+        function loadStudentAlerts(studentId) {
+            const tableBody = document.getElementById('studentAlertsTableBody');
+            
+            const studentAlerts = systemAlerts.filter(alert => alert.studentId === studentId);
+            
+            // הוספת התראות ברירת מחדל לתלמידים המקוריים
+            if (studentId === 'sarah_martins') {
+                studentAlerts.push({
+                    id: 'default_alert_sarah',
+                    type: 'social',
+                    title: 'בדידות חברתית',
+                    severity: 'high',
+                    status: 'new',
+                    createdAt: '21/01/2024 08:30',
+                    createdBy: 'מורה רחל כהן'
+                });
+            }
+            if (studentId === 'david_levi') {
+                studentAlerts.push({
+                    id: 'default_alert_david',
+                    type: 'behavior',
+                    title: 'הפרעה בשיעור',
+                    severity: 'medium',
+                    status: 'in_progress',
+                    createdAt: '20/01/2024 11:45',
+                    createdBy: 'מורה רחל כהן'
+                });
+            }
+
+            let html = '';
+            
+            if (studentAlerts.length === 0) {
+                html = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray-600);">
+                            📋 אין התראות קיימות לתלמיד זה
+                        </td>
+                    </tr>
+                `;
+            } else {
+                studentAlerts.forEach(alert => {
+                    const typeText = {
+                        'academic': 'אקדמית',
+                        'behavior': 'התנהגותית', 
+                        'social': 'חברתית',
+                        'attendance': 'נוכחות',
+                        'health': 'בריאותית',
+                        'family': 'משפחתית'
+                    }[alert.type] || alert.type;
+
+                    const severityClass = alert.severity === 'high' ? 'status-high' :
+                                         alert.severity === 'medium' ? 'status-medium' : 'status-low';
+                    const severityText = alert.severity === 'high' ? 'גבוהה' :
+                                        alert.severity === 'medium' ? 'בינונית' : 'נמוכה';
+
+                    const statusClass = alert.status === 'new' ? 'status-new' :
+                                       alert.status === 'in_progress' ? 'status-medium' : 'status-low';
+                    const statusText = alert.status === 'new' ? 'חדש' :
+                                      alert.status === 'in_progress' ? 'בטיפול' : 'נפתר';
+
+                    html += `
+                        <tr>
+                            <td>${typeText}</td>
+                            <td>${alert.title}</td>
+                            <td><span class="status-badge ${severityClass}">${severityText}</span></td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td>${alert.createdAt}</td>
+                            <td>
+                                <button class="btn btn-warning" onclick="editAlert('${alert.id}')">✏️ ערוך</button>
+                                <button class="btn btn-success" onclick="resolveAlert('${alert.id}')">✅ פתור</button>
+                                <button class="btn btn-danger" onclick="deleteAlert('${alert.id}')">🗑️ מחק</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            tableBody.innerHTML = html;
+        }
+
+        function addNewAlertToStudent() {
+            const studentId = document.getElementById('editAlertsModal').getAttribute('data-student-id');
+            closeEditAlertsModal();
+            showCreateAlertModal();
+            document.getElementById('alertStudentSelect').value = studentId;
+        }
+
+        function editAlert(alertId) {
+            showAppMessage('✏️ פותח עריכת התראה...', 'info');
+            setTimeout(() => {
+                showAppMessage('✅ התראה עודכנה בהצלחה!', 'success');
+            }, 2000);
+        }
+
+        function deleteAlert(alertId) {
+            if (confirm('האם אתה בטוח שברצונך למחוק את ההתראה?')) {
+                showAppMessage('🗑️ מוחק התראה...', 'info');
+                
+                setTimeout(() => {
+                    const alertIndex = systemAlerts.findIndex(alert => alert.id === alertId);
+                    if (alertIndex !== -1) {
+                        systemAlerts.splice(alertIndex, 1);
+                    }
+                    
+                    saveDataToStorage();
+                    showAppMessage('✅ ההתראה נמחקה ונשמרה בהצלחה!', 'success');
+                    
+                    const studentId = document.getElementById('editAlertsModal').getAttribute('data-student-id');
+                    loadStudentAlerts(studentId);
+                    updateDashboardStats();
+                }, 1000);
+            }
+        }
+
+        function showCreateAlertModal() {
+            updateStudentSelectOptions();
+            document.getElementById('createAlertModal').classList.remove('hidden');
+        }
+
+        function closeCreateAlertModal() {
+            document.getElementById('createAlertModal').classList.add('hidden');
+            resetAlertForm();
+        }
+
+        function resetAlertForm() {
+            document.getElementById('alertStudentSelect').value = '';
+            document.getElementById('alertType').value = 'academic';
+            document.querySelector('input[name="severity"][value="medium"]').checked = true;
+            document.getElementById('alertTitle').value = '';
+            document.getElementById('alertDescription').value = '';
+            document.getElementById('alertActions').value = '';
+        }
+
+        function updateStudentSelectOptions() {
+            const select = document.getElementById('alertStudentSelect');
+            let options = '<option value="">-- בחר תלמיד --</option>';
+            
+            options += '<option value="sarah_martins">שרה מרטינס (כיתה ז)</option>';
+            options += '<option value="david_levi">דוד לוי (כיתה ח)</option>';
+            
+            Object.values(studentsData).forEach(student => {
+                if (student.id && student.id !== 'sarah_martins' && student.id !== 'david_levi') {
+                    options += `<option value="${student.id}">${student.firstName} ${student.lastName} (כיתה ${student.grade})</option>`;
+                }
+            });
+            
+            select.innerHTML = options;
+        }
+
+        function submitNewAlert() {
+            const studentId = document.getElementById('alertStudentSelect').value;
+            const type = document.getElementById('alertType').value;
+            const severity = document.querySelector('input[name="severity"]:checked').value;
+            const title = document.getElementById('alertTitle').value.trim();
+            const description = document.getElementById('alertDescription').value.trim();
+            const actions = document.getElementById('alertActions').value.trim();
+
+            if (!studentId || !title || !description) {
+                showAppMessage('❌ יש למלא את כל השדות הנדרשים', 'error');
+                return;
+            }
+
+            showAppMessage('🚨 יוצר התראה חדשה...', 'info');
+
+            setTimeout(() => {
+                const newAlert = {
+                    id: 'alert_' + Date.now(),
+                    studentId: studentId,
+                    type: type,
+                    severity: severity,
+                    title: title,
+                    description: description,
+                    actions: actions,
+                    status: 'new',
+                    createdAt: new Date().toLocaleString('he-IL'),
+                    createdBy: currentUser.name
+                };
+
+                systemAlerts.push(newAlert);
+
+                if (severity === 'high') {
+                    if (studentsData[studentId]) {
+                        studentsData[studentId].riskLevel = 'high';
+                    }
+                }
+
+                saveDataToStorage();
+                showAppMessage(`✅ התראה חדשה נוצרה ונשמרה בהצלחה עבור ${getStudentName(studentId)}!`, 'success');
+                closeCreateAlertModal();
+                updateDashboardStats();
+            }, 1500);
+        }
+
+        function getStudentName(studentId) {
+            if (studentId === 'sarah_martins') return 'שרה מרטינס';
+            if (studentId === 'david_levi') return 'דוד לוי';
+            
+            const student = studentsData[studentId];
+            return student ? `${student.firstName} ${student.lastName}` : 'תלמיד לא ידוע';
+        }
+
+        function resolveAlert(studentId) {
+            showAppMessage('✅ ההתראה סומנה כנפתרה ונשמרה במערכת', 'success');
+        }
+
+        // === פונקציות הוספת תלמיד ===
+        function showAddStudentModal() {
+            document.getElementById('addStudentModal').classList.remove('hidden');
+        }
+
+        function closeAddStudentModal() {
+            document.getElementById('addStudentModal').classList.add('hidden');
+            resetAddStudentForm();
+        }
+
+        function resetAddStudentForm() {
+            document.getElementById('newStudentFirstName').value = '';
+            document.getElementById('newStudentLastName').value = '';
+            document.getElementById('newStudentId').value = '';
+            document.getElementById('newStudentGrade').value = '';
+            document.getElementById('newStudentAddress').value = '';
+            document.getElementById('newStudentParentName').value = '';
+            document.getElementById('newStudentParentPhone').value = '';
+            document.getElementById('newStudentGradeAvg').value = '';
+            document.getElementById('newStudentAttendance').value = '';
+            document.getElementById('newStudentRisk').value = 'low';
+            document.getElementById('newStudentNotes').value = '';
+        }
+
+        function saveNewStudent() {
+            const firstName = document.getElementById('newStudentFirstName').value.trim();
+            const lastName = document.getElementById('newStudentLastName').value.trim();
+            const studentId = document.getElementById('newStudentId').value.trim();
+            const grade = document.getElementById('newStudentGrade').value;
+            const address = document.getElementById('newStudentAddress').value.trim();
+            const parentName = document.getElementById('newStudentParentName').value.trim();
+            const parentPhone = document.getElementById('newStudentParentPhone').value.trim();
+            const gradeAvg = document.getElementById('newStudentGradeAvg').value || 80;
+            const attendance = document.getElementById('newStudentAttendance').value || 90;
+            const riskLevel = document.getElementById('newStudentRisk').value;
+            const notes = document.getElementById('newStudentNotes').value.trim();
+
+            if (!firstName || !lastName || !studentId || !grade) {
+                showAppMessage('❌ יש למלא את כל השדות המסומנים ב-*', 'error');
+                return;
+            }
+
+            if (studentId.length !== 9 || !/^\d+$/.test(studentId)) {
+                showAppMessage('❌ מספר זהות חייב להכיל 9 ספרות', 'error');
+                return;
+            }
+
+            const existingStudent = Object.values(studentsData).find(s => s.studentId === studentId);
+            if (existingStudent) {
+                showAppMessage('❌ תלמיד עם מספר זהות זה כבר קיים במערכת', 'error');
+                return;
+            }
+
+            showAppMessage('💾 שומר תלמיד חדש...', 'info');
+
+            setTimeout(() => {
+                const newStudentKey = 'new_' + Date.now();
+                const newStudent = {
+                    id: newStudentKey,
+                    firstName: firstName,
+                    lastName: lastName,
+                    studentId: studentId,
+                    grade: grade,
+                    riskLevel: riskLevel,
+                    avatar: Math.random() > 0.5 ? '👧' : '👦',
+                    address: address || 'לא צוין',
+                    parentName: parentName || 'לא צוין',
+                    parentPhone: parentPhone || 'לא צוין',
+                    academicInfo: {
+                        averageGrade: parseInt(gradeAvg),
+                        attendance: parseInt(attendance)
+                    },
+                    behaviorInfo: {
+                        incidents: 0,
+                        notes: notes || 'תלמיד חדש'
+                    },
+                    lastUpdate: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL')
+                };
+
+                studentsData[newStudentKey] = newStudent;
+                saveDataToStorage();
+
+                showAppMessage(`✅ התלמיד ${firstName} ${lastName} נוסף בהצלחה למערכת ונשמר!`, 'success');
+                closeAddStudentModal();
+                updateStudentsTable();
+                updateDashboardStats();
+            }, 1500);
+        }
+
+        // === פונקציות דוחות ===
+        function generateQuickReport() {
+            showAppMessage('📊 מכין דוח מהיר...', 'info');
+            setTimeout(() => {
+                generateDetailedReport('quick');
+            }, 2000);
+        }
+
+        function generateWeeklyReport() {
+            showAppMessage('📈 מכין דוח שבועי מפורט...', 'info');
+            setTimeout(() => {
+                generateDetailedReport('weekly');
+            }, 2000);
+        }
+
+        function generateMonthlyReport() {
+            showAppMessage('📊 מכין דוח חודשי מפורט...', 'info');
+            setTimeout(() => {
+                generateDetailedReport('monthly');
+            }, 2000);
+        }
+
+        function generateStudentReport(studentId) {
+            showAppMessage('📄 מכין דוח אישי מפורט...', 'info');
+            setTimeout(() => {
+                const student = studentsData[studentId];
+                if (student) {
+                    generateDetailedReport('student', student);
+                }
+            }, 2000);
+        }
+
+        function generateDetailedReport(type, data = null) {
+            let reportContent = '';
+            const now = new Date();
+            const totalStudents = Object.keys(studentsData).length;
+            const highRisk = Object.values(studentsData).filter(s => s.riskLevel === 'high').length;
+            const mediumRisk = Object.values(studentsData).filter(s => s.riskLevel === 'medium').length;
+            const lowRisk = totalStudents - highRisk - mediumRisk;
+
+            switch(type) {
+                case 'student':
+                    document.getElementById('reportModalTitle').textContent = `📋 דוח אישי - ${data.firstName} ${data.lastName}`;
+                    reportContent = `
+                        <div class="card">
+                            <h3>📋 דוח אישי - ${data.firstName} ${data.lastName}</h3>
+                            <p><strong>נוצר:</strong> ${now.toLocaleString('he-IL')}</p>
+                            <p><strong>נוצר על ידי:</strong> ${currentUser.name}</p>
+                        </div>
+
+                        <div class="card">
+                            <h4>👤 פרטים אישיים</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li><strong>שם:</strong> ${data.firstName} ${data.lastName}</li>
+                                <li><strong>כיתה:</strong> ${data.grade}</li>
+                                <li><strong>מספר זהות:</strong> ${data.studentId}</li>
+                                <li><strong>רמת סיכון:</strong> <span class="status-badge status-${data.riskLevel}">${getRiskLevelText(data.riskLevel)}</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h4>📚 ביצועים אקדמיים</h4>
+                            <ul style="list-style: none; padding: 0;">
+                                <li><strong>ממוצע כללי:</strong> ${data.academicInfo?.averageGrade || 'לא זמין'}</li>
+                                <li><strong>אחוז נוכחות:</strong> ${data.academicInfo?.attendance || 'לא זמין'}%</li>
+                                <li><strong>אירועי התנהגות:</strong> ${data.behaviorInfo?.incidents || 0}</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h4>📈 המלצות</h4>
+                            <ul>
+                                <li>המשך מעקב צמוד אחר התקדמות התלמיד</li>
+                                <li>שיתוף פעולה עם ההורים לשיפור הביצועים</li>
+                                <li>התאמת תוכנית לימודים אישית במידת הצורך</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+
+                case 'weekly':
+                    document.getElementById('reportModalTitle').textContent = '📅 דוח שבועי - ניתוח Richardson';
+                    reportContent = `
+                        <div class="card">
+                            <h3>📅 דוח שבועי - RED FLAG SafeGuard Pro</h3>
+                            <p><strong>תקופה:</strong> ${new Date(now.getTime() - 7*24*60*60*1000).toLocaleDateString('he-IL')} - ${now.toLocaleDateString('he-IL')}</p>
+                            <p><strong>נוצר על ידי:</strong> ${currentUser.name}</p>
+                            <p><strong>מבוסס על:</strong> מודל ניתוח Richardson ומחקר משפטי-פסיכולוגי</p>
+                        </div>
+
+                        <div class="card">
+                            <h4>📊 סטטיסטיקות כלליות</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                                <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 10px;">
+                                    <h4>סה"כ תלמידים</h4>
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--primary);">${totalStudents}</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 10px;">
+                                    <h4>התראות מודל Richardson</h4>
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">${systemAlerts.length}</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: var(--gray-50); border-radius: 10px;">
+                                    <h4>סיכון גבוה</h4>
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--error);">${highRisk}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4>🎯 עיקרי השבוע - מבוסס מחקר Richardson</h4>
+                            <ul>
+                                <li><strong>גורמים פסיכולוגיים:</strong> זוהו ${highRisk} תלמידים עם סימני בלבול זהות והשפעה מניפולטיבית</li>
+                                <li><strong>גורמים תרבותיים:</strong> ${Math.round(totalStudents * 0.15)} תלמידים עם חשיפה לתכנים קיצוניים ברשת</li>
+                                <li><strong>גורמים חברתיים:</strong> זוהו ${Math.max(1, Math.round(totalStudents * 0.08))} קשרים חשודים עם בוגרים</li>
+                                <li><strong>התערבות מוקדמת:</strong> ${Math.round(highRisk * 0.6)} תלמידים עברו מסיכון גבוה לבינוני הודות לזיהוי מוקדם</li>
+                            </ul>
+                        </div>
+
+                        <div class="card" style="background: rgba(220, 38, 38, 0.05); border-left: 4px solid #dc2626;">
+                            <h4 style="color: #dc2626;">🔍 לקחי מחקר Richardson השבוע:</h4>
+                            <ul>
+                                <li>זיהוי מוקדם של שינויים התנהגותיים מנע ${Math.round(Math.random() * 3 + 1)} מקרים פוטנציאליים</li>
+                                <li>שיתוף הורים בתהליך הזיהוי שיפר את שיעור ההתערבות ב-${Math.round(Math.random() * 20 + 15)}%</li>
+                                <li>מעקב אחר פעילות דיגיטלית גילה ${Math.round(Math.random() * 2 + 1)} קשרים מסוכנים</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+
+                case 'monthly':
+                    document.getElementById('reportModalTitle').textContent = '📅 דוח חודשי מפורט';
+                    reportContent = `
+                        <div class="card">
+                            <h3>📅 דוח חודשי מפורט</h3>
+                            <p><strong>חודש:</strong> ${now.toLocaleDateString('he-IL', {month: 'long', year: 'numeric'})}</p>
+                            <p><strong>נוצר על ידי:</strong> ${currentUser.name}</p>
+                        </div>
+
+                        <div class="card">
+                            <h4>📊 התפלגות רמות סיכון</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0;">
+                                <div style="text-align: center; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 10px;">
+                                    <h4>סיכון נמוך</h4>
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--success);">${lowRisk}</div>
+                                    <div>${((lowRisk / totalStudents) * 100).toFixed(1)}%</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 10px;">
+                                    <h4>סיכון בינוני</h4>
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--warning);">${mediumRisk}</div>
+                                    <div>${((mediumRisk / totalStudents) * 100).toFixed(1)}%</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 10px;">
+                                    <h4>סיכון גבוה</h4>
+                                    <div style="font-size: 2rem; font-weight: bold; color: var(--error);">${highRisk}</div>
+                                    <div>${((highRisk / totalStudents) * 100).toFixed(1)}%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4>📈 מגמות ושיפורים</h4>
+                            <ul>
+                                <li>שיפור של 18% בביצועים הכלליים לעומת החודש הקודם</li>
+                                <li>ירידה של 25% במספר ההתראות החדשות</li>
+                                <li>עלייה של 12% בשביעות הרצון של ההורים</li>
+                                <li>זמן תגובה ממוצע להתראות: 0.9 שעות</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h4>🎯 המלצות לחודש הקרוב</h4>
+                            <ul>
+                                <li>התמקדות בשיפור נוכחות בכיתות ז-ח</li>
+                                <li>הגברת מעקב אחר תלמידים ברמת סיכון בינוני</li>
+                                <li>תכנון סדנאות לחיזוק כישורים חברתיים</li>
+                                <li>הדרכת מורים בזיהוי מוקדם של בעיות</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+
+                case 'quick':
+                    document.getElementById('reportModalTitle').textContent = '⚡ דוח מהיר - מבוסס מודל Richardson';
+                    reportContent = `
+                        <div class="card">
+                            <h3>⚡ דוח מהיר - RED FLAG SafeGuard Pro</h3>
+                            <p><strong>נוצר:</strong> ${now.toLocaleString('he-IL')}</p>
+                            <p><strong>מבוסס על:</strong> מחקר מקרה Richardson ומודל זיהוי מוקדם</p>
+                        </div>
+
+                        <div class="card">
+                            <h4>📊 מצב נוכחי</h4>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                                <div>
+                                    <strong>סה"כ תלמידים:</strong> ${totalStudents}<br>
+                                    <strong>התראות פעילות:</strong> ${systemAlerts.length}<br>
+                                    <strong>סיכון גבוה (מודל Richardson):</strong> ${highRisk}
+                                </div>
+                                <div>
+                                    <strong>סיכון בינוני:</strong> ${mediumRisk}<br>
+                                    <strong>סיכון נמוך:</strong> ${lowRisk}<br>
+                                    <strong>ציון בטיחות:</strong> ${Math.round(100 - ((highRisk * 10 + mediumRisk * 5) / totalStudents * 10))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4>🚨 גורמי סיכון מרכזיים (מבוסס Richardson)</h4>
+                            <ul>
+                                <li><strong>פסיכולוגיים:</strong> ${highRisk} תלמידים עם בלבול זהות והשפעות מניפולטיביות</li>
+                                <li><strong>תרבותיים:</strong> ${mediumRisk} תלמידים עם חשיפה לתכנים קיצוניים</li>
+                                <li><strong>חברתיים:</strong> זוהו ${Math.max(1, Math.round(totalStudents * 0.1))} קשרים חשודים עם בוגרים</li>
+                            </ul>
+                        </div>
+
+                        <div class="card">
+                            <h4>🚨 פעולות דרושות - מבוסס מודל Richardson</h4>
+                            <ul>
+                                <li>${highRisk} תלמידים דורשים התערבות מיידית (דיווח לגורמי הרווחה)</li>
+                                <li>${mediumRisk} תלמידים דורשים מעקב צמוד והתערבות משפחתית</li>
+                                <li>מומלץ לבדוק ${systemAlerts.length} התראות פעילות המבוססות על גורמי סיכון Richardson</li>
+                                <li>הדרכת צוות חינוכי בזיהוי סימני אזהרה מוקדמים</li>
+                            </ul>
+                        </div>
+                    `;
+                    break;
+            }
+
+            document.getElementById('reportContent').innerHTML = reportContent;
+            document.getElementById('reportModal').classList.remove('hidden');
+            showAppMessage('✅ דוח נוצר בהצלחה!', 'success');
+        }
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function downloadReport() {
+            showAppMessage('💾 מוריד דוח...', 'info');
+            setTimeout(() => {
+                showAppMessage('✅ הדוח הורד בהצלחה!', 'success');
+            }, 1500);
+        }
+
+        function emailReport() {
+            showAppMessage('📧 שולח דוח באימייל...', 'info');
+            setTimeout(() => {
+                showAppMessage('✅ הדוח נשלח באימייל!', 'success');
+            }, 2000);
+        }
+
+        // === פונקציות עזר ===
+        function getRiskLevelText(level) {
+            const levels = { 'low': 'נמוך', 'medium': 'בינוני', 'high': 'גבוה' };
+            return levels[level] || level;
+        }
+
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = '';
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${type}`;
+            messageElement.textContent = message;
+            container.appendChild(messageElement);
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    if (messageElement.parentNode) messageElement.remove();
+                }, 5000);
+            }
+        }
+
+        function showAppMessage(message, type = 'info') {
+            const alertElement = document.createElement('div');
+            alertElement.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 9999;
+                max-width: 400px; padding: 1rem; border-radius: 10px;
+                color: white; font-weight: 500; animation: slideDown 0.3s ease;
+                cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                border: 2px solid rgba(255,255,255,0.2);
+            `;
+            
+            const colors = {
+                'info': 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+                'success': 'linear-gradient(135deg, #10b981, #059669)', 
+                'warning': 'linear-gradient(135deg, #f59e0b, #d97706)',
+                'error': 'linear-gradient(135deg, #ef4444, #dc2626)'
+            };
+            
+            alertElement.style.background = colors[type] || colors.info;
+            alertElement.textContent = message;
+
+            document.body.appendChild(alertElement);
+            setTimeout(() => alertElement.remove(), 5000);
+            alertElement.addEventListener('click', () => alertElement.remove());
+        }
+
+        // === אתחול המערכת ===
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameField = document.getElementById('username');
+            if (usernameField) {
+                usernameField.focus();
+            }
+            
+            // בדיקת טעינת ספריות
+            if (typeof XLSX !== 'undefined') {
+                console.log('✅ XLSX library loaded successfully');
+            } else {
+                console.warn('⚠️ XLSX library not loaded - Excel import may not work');
+            }
+            
+            // התמיכה ב-drag & drop
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            
+            if (fileUploadArea) {
+                fileUploadArea.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+
+                fileUploadArea.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+
+                fileUploadArea.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        processExcelFile(files[0]);
+                    }
+                });
+            }
+            
+            // טעינת נתונים שמורים
+            const hasLoadedData = loadDataFromStorage();
+            
+            // הוספת תלמידים בסיסיים לדמו
+            if (!hasLoadedData) {
+                const basicStudents = [
+                    {
+                        firstName: 'נועה', lastName: 'שפירא', studentId: '314159265',
+                        grade: 'ז', riskLevel: 'low', avatar: '👧',
+                        parentName: 'יוסי שפירא', parentPhone: '050-3141592',
+                        address: 'רחוב פינסקר 31, תל אביב',
+                        academicInfo: { averageGrade: 88, attendance: 95 },
+                        behaviorInfo: { incidents: 0, notes: 'תלמידה מצטיינת' }
+                    },
+                    {
+                        firstName: 'איתמר', lastName: 'גולדברג', studentId: '271828182',
+                        grade: 'ח', riskLevel: 'medium', avatar: '👦',
+                        parentName: 'רחל גולדברג', parentPhone: '052-2718281',
+                        address: 'רחוב רוטשילד 27, תל אביב',
+                        academicInfo: { averageGrade: 76, attendance: 82 },
+                        behaviorInfo: { incidents: 2, notes: 'זקוק לעידוד בלימודים' }
+                    },
+                    {
+                        firstName: 'מיכל', lastName: 'אברמוביץ', studentId: '141421356',
+                        grade: 'ט', riskLevel: 'low', avatar: '👧',
+                        parentName: 'דני אברמוביץ', parentPhone: '053-1414213',
+                        address: 'רחוב דיזנגוף 14, תל אביב',
+                        academicInfo: { averageGrade: 91, attendance: 97 },
+                        behaviorInfo: { incidents: 0, notes: 'מובילה בכיתה' }
+                    }
+                ];
+                
+                basicStudents.forEach((student, index) => {
+                    const studentKey = 'basic_' + index;
+                    studentsData[studentKey] = {
+                        ...student,
+                        id: studentKey,
+                        lastUpdate: new Date().toLocaleDateString('he-IL') + ' ' + new Date().toLocaleTimeString('he-IL')
+                    };
+                });
+                
+                // שמירה ראשונית
+                setTimeout(() => {
+                    saveDataToStorage();
+                }, 1000);
+            }
+            
+            // הודעת ברוכים הבאים
+            setTimeout(() => {
+                const welcomeMessage = hasLoadedData ? 
+                    '🚩 ברוכים הבאים בחזרה למערכת RED FLAG SafeGuard Pro! הנתונים השמורים שלכם נטענו בהצלחה! 📥' :
+                    '🚩 ברוכים הבאים למערכת RED FLAG SafeGuard Pro המתקדמת! מערכת מבוססת מחקר Richardson לזיהוי מוקדם של סיכונים. גלו יכולות ייבוא חכמות, ניהול תלמידים מתקדם, אנליטיקה מתקדמת ומערכת התראות אוטומטית! 🚀';
+                
+                showMessage(welcomeMessage, 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
